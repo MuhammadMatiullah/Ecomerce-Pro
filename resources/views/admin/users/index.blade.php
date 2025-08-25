@@ -402,5 +402,5 @@
   <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="{{asset('assets/admin1/assets/js/material-dashboard.min.js?v=3.2.0')}}"></script>
 </body>
-
+<!-- asdasdasdasdasdasd -->
 </html>
