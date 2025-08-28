@@ -4,7 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\User\UserController;
-
+use App\Http\Controllers\FrontendController;
 Route::view('/', 'welcome');
 
 Auth::routes();
@@ -37,7 +37,20 @@ Route::view('/writer', 'writer')->middleware('auth');
 
 // Users routes for admin
 Route::prefix('admin')->name('admin.')->group(function () {
-    Route::resource('users', \App\Http\Controllers\Admin\User\UserController::class);
+  // Show all users
+    Route::get('users', [UserController::class, 'index'])->name('users.index');
+    // Show create form
+    Route::get('users/create', [UserController::class, 'create'])->name('users.create');
+    // Store user
+    Route::post('users', [UserController::class, 'store'])->name('users.store');
+    // Show edit form
+    Route::get('users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
+    // Update user
+    Route::put('users/{id}', [UserController::class, 'update'])->name('users.update');
+    // Delete user
+    Route::delete('users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
 });
 
 
+// frontend 
+Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
