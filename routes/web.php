@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\User\UserController;
 use App\Http\Controllers\FrontendController;
+use App\Http\Controllers\CategoryController;
 Route::view('/', 'welcome');
 
 Auth::routes();
@@ -52,5 +53,24 @@ Route::prefix('admin')->name('admin.')->group(function () {
 });
 
 
+
+
+
+// Show all categories (list)
+Route::get('/admin/category', [CategoryController::class, 'category'])->name('category');
+
+// Show create form
+Route::get('/category/create', [CategoryController::class, 'create'])->name('category.create');
+
+// Save category (POST)
+Route::post('/category/store', [CategoryController::class, 'store'])->name('category.store');
+
+
+
+
+
+
 // frontend 
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
+Route::get('/wishlist', [FrontendController::class, 'wishlist'])->name('wishlist');
+Route::get('/checkout', [FrontendController::class, 'checkout'])->name('checkout');

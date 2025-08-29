@@ -10,4 +10,15 @@ class FrontendController extends Controller
     {
         return view('user.index'); 
     }
+
+    public function wishlist()
+    {
+        return view('user.wishlist');
+    }
+
+public function checkout()
+    {
+        return view('user.checkout.chectout');
+    }
+
 }
