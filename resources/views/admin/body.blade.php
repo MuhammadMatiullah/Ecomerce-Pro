@@ -34,7 +34,7 @@
                   <h4 class="mb-0">{{$usersCount}}</h4>
                 </div>
                 <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
-                  <i class="material-symbols-rounded opacity-10">person</i>
+                  <i class="material-symbols-rounded opacity-10">supervisor_account</i>
                 </div>
               </div>
             </div>

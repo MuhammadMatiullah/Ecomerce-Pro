@@ -7,7 +7,7 @@
     <link rel="apple-touch-icon" sizes="76x76" href="{{asset('assets/admin1/assets/img/apple-icon.png')}}">
     <link rel="icon" type="image/png" href="{{asset('assets/admin1/assets/img/favicon.png')}}">
     <title>
-        Category
+       Product
     </title>
     @include('admin.css')
 </head>
@@ -21,7 +21,7 @@
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
                         <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">Pages</a></li>
-                        <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Category</li>
+                        <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Product</li>
                     </ol>
                 </nav>
                 @include('admin.navbar')
@@ -31,8 +31,8 @@
 
         <div class="container-fluid py-2">
             <div class="d-flex justify-content-end mb-3 mt-4">
-                <a href="{{ route('category.create')}}" class="btn btn-success btn-sm me-3">
-                    <i class="fas fa-plus me-1"></i> Add Category
+                <a href="{{ route('admin.product.create') }}" class="btn btn-success btn-sm me-3">
+                    <i class="fas fa-plus me-1"></i> Add Product
                 </a>
             </div>
             <div class="row">
@@ -40,7 +40,7 @@
                     <div class="card my-4">
                         <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
                             <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
-                                <h6 class="text-white text-capitalize ps-3">Categories Table</h6>
+                                <h6 class="text-white text-capitalize ps-3">Product Table</h6>
 
                             </div>
 
@@ -55,50 +55,51 @@
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Name</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Description</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Slug</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Category</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Sub_Category</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Price</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Discount</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Quantity</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Size</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Color</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Image</th>
                                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        @foreach($categories as $category)
-                                        <tr>
-                                            <td>
-                                                <h6 class="mb-0 text-sm">{{ $category->name }}</h6>
-                                            </td>
-                                            <td>
-                                                <p class="text-xs text-secondary mb-0">{{ $category->description }}</p>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-gradient-secondary">{{ $category->slug }}</span>
-                                            </td>
-                                            <td>
-                                                @if($category->image)
-                                                <img src="{{ Storage::url($category->image) }}"
-                                                    class="avatar avatar-lg me-3 border-radius-lg"
-                                                    alt="{{ $category->name }}">
-                                                @else
-                                                <img src="{{ asset('assets/admin1/assets/img/default.png') }}"
-                                                    class="avatar avatar-sm me-3 border-radius-lg"
-                                                    alt="default">
-                                                @endif
-
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <a href="{{ route('category.edit', $category->id) }}" class="text-warning font-weight-bold text-xs me-2">Edit</a>
-                                                <form action="{{ route('category.destroy', $category->id) }}"
-                                                    method="POST"
-                                                    style="display:inline-block;"
-                                                    onsubmit="return confirm('Are you sure you want to delete this category?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-link text-danger font-weight-bold text-xs p-0 m-0 border-0 bg-transparent">
-                                                        Delete
-                                                    </button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
+                                   <tbody>
+    @foreach($products as $product)
+        <tr>
+            <td>{{ $product->name }}</td>
+            <td>{{ Str::limit($product->description, 50) }}</td>
+            <td>{{ $product->slug }}</td>
+            <td>{{ $product->category->name ?? 'N/A' }}</td>
+            <td>{{ $product->subcategory->name ?? 'N/A' }}</td>
+            <td>{{ $product->price }}</td>
+            <td>{{ $product->discount ?? '-' }}</td>
+            <td>{{ $product->quantity }}</td>
+            <td>{{ $product->size ? implode(', ', json_decode($product->size)) : '-' }}</td>
+            <td>{{ $product->color ? implode(', ', json_decode($product->color)) : '-' }}</td>
+            <td>
+                @if($product->image)
+                    <img src="{{ asset('uploads/products/'.$product->image) }}" width="50" height="50" class="rounded">
+                @else
+                    No Image
+                @endif
+            </td>
+            <td class="text-center">
+                <a href="#" class="btn btn-warning btn-sm">Edit</a>
+                <form action="#" method="POST" style="display:inline;">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger btn-sm"
+                        onclick="return confirm('Are you sure you want to delete this product?')">
+                        Delete
+                    </button>
+                </form>
+            </td>
+        </tr>
+    @endforeach
+</tbody>
 
                                 </table>
                             </div>

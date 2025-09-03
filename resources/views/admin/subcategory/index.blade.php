@@ -7,7 +7,7 @@
     <link rel="apple-touch-icon" sizes="76x76" href="{{asset('assets/admin1/assets/img/apple-icon.png')}}">
     <link rel="icon" type="image/png" href="{{asset('assets/admin1/assets/img/favicon.png')}}">
     <title>
-        Category
+       Sub-Category
     </title>
     @include('admin.css')
 </head>
@@ -21,7 +21,7 @@
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
                         <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">Pages</a></li>
-                        <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Category</li>
+                        <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Sub_Category</li>
                     </ol>
                 </nav>
                 @include('admin.navbar')
@@ -31,8 +31,8 @@
 
         <div class="container-fluid py-2">
             <div class="d-flex justify-content-end mb-3 mt-4">
-                <a href="{{ route('category.create')}}" class="btn btn-success btn-sm me-3">
-                    <i class="fas fa-plus me-1"></i> Add Category
+                <a href="{{ route('admin.subcategory.create') }}" class="btn btn-success btn-sm me-3">
+                    <i class="fas fa-plus me-1"></i> Add Sub_Category
                 </a>
             </div>
             <div class="row">
@@ -40,7 +40,7 @@
                     <div class="card my-4">
                         <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
                             <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
-                                <h6 class="text-white text-capitalize ps-3">Categories Table</h6>
+                                <h6 class="text-white text-capitalize ps-3">Sub_Categories Table</h6>
 
                             </div>
 
@@ -55,40 +55,56 @@
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Name</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Description</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Slug</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Category</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Image</th>
                                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($categories as $category)
+                                        @foreach($subcategories as $subcategory)
                                         <tr>
+                                            <!-- Subcategory name -->
                                             <td>
-                                                <h6 class="mb-0 text-sm">{{ $category->name }}</h6>
+                                                <h6 class="mb-0 text-sm">{{ $subcategory->name }}</h6>
                                             </td>
+
+                                            <!-- Subcategory description -->
                                             <td>
-                                                <p class="text-xs text-secondary mb-0">{{ $category->description }}</p>
+                                                <p class="text-xs text-secondary mb-0">{{ $subcategory->description }}</p>
                                             </td>
+
+                                            <!-- Subcategory slug -->
                                             <td>
-                                                <span class="badge bg-gradient-secondary">{{ $category->slug }}</span>
+                                                <span class="badge bg-gradient-secondary">{{ $subcategory->slug }}</span>
                                             </td>
+
+                                            <!-- Parent Category -->
                                             <td>
-                                                @if($category->image)
-                                                <img src="{{ Storage::url($category->image) }}"
+                                                <span class="badge bg-gradient-info">
+                                                    {{ $subcategory->category ? $subcategory->category->name : 'No Category' }}
+                                                </span>
+                                            </td>
+
+                                            <!-- Subcategory Image -->
+                                            <td>
+                                                @if($subcategory->image)
+                                                <img src="{{ Storage::url($subcategory->image) }}"
                                                     class="avatar avatar-lg me-3 border-radius-lg"
-                                                    alt="{{ $category->name }}">
+                                                    alt="{{ $subcategory->name }}">
                                                 @else
                                                 <img src="{{ asset('assets/admin1/assets/img/default.png') }}"
                                                     class="avatar avatar-sm me-3 border-radius-lg"
                                                     alt="default">
                                                 @endif
-
                                             </td>
+
+                                            <!-- Actions -->
                                             <td class="align-middle text-center">
-                                                <a href="{{ route('category.edit', $category->id) }}" class="text-warning font-weight-bold text-xs me-2">Edit</a>
-                                                <form action="{{ route('category.destroy', $category->id) }}"
+                                                <a href="{{ route('admin.subcategory.edit', $subcategory->id) }}" class="text-warning font-weight-bold text-xs me-2">Edit</a>
+                                                <form action="{{ route('admin.subcategory.destroy', $subcategory->id) }}"
                                                     method="POST"
                                                     style="display:inline-block;"
-                                                    onsubmit="return confirm('Are you sure you want to delete this category?');">
+                                                    onsubmit="return confirm('Are you sure you want to delete this subcategory?');">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-link text-danger font-weight-bold text-xs p-0 m-0 border-0 bg-transparent">
@@ -99,6 +115,7 @@
                                         </tr>
                                         @endforeach
                                     </tbody>
+
 
                                 </table>
                             </div>

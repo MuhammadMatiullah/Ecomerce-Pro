@@ -21,7 +21,7 @@
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
                         <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">Pages</a></li>
-                        <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Add Category</li>
+                        <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Add Sub_Category</li>
                     </ol>
                 </nav>
                 @include('admin.navbar')
@@ -37,29 +37,38 @@
                 <div class="card my-4">
                     <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
                         <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
-                            <h6 class="text-white text-capitalize ps-3">➕ Add New Category</h6>
+                            <h6 class="text-white text-capitalize ps-3">➕ Add New Sub_Category</h6>
 
                         </div>
 
 
                     </div>
                     <div class="container mt-5">
-                        <form action="{{ route('category.store') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('admin.subcategory.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
 
                             <div class="row g-3">
                                 <!-- Product Name -->
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Category Name</label>
-                                    <input type="text" name="name" class="form-control border-0 shadow-sm" placeholder="Enter Category name" required>
+                                    <label class="form-label fw-bold">Sub_Category Name</label>
+                                    <input type="text" id="name" name="name" class="form-control border-0 shadow-sm" placeholder="Enter Category name" required>
                                 </div>
 
                                 <!-- Slug -->
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Slug</label>
-                                    <input type="text" name="slug" class="form-control border-0 shadow-sm" placeholder="Auto-generated or enter manually" required>
+                                     <input type="text" id="slug" name="slug" class="form-control border-0 shadow-sm" readonly>
                                 </div>
-
+                                <!-- Category Dropdown -->
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Select Category</label>
+                                    <select name="category_id" class="form-select border-0 shadow-sm" required>
+                                        <option value="">-- Select Category --</option>
+                                        @foreach($categories as $category)
+                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                                 <!-- Description -->
                                 <div class="col-12">
                                     <label class="form-label fw-bold">Description</label>
@@ -68,7 +77,7 @@
 
                                 <!-- Image -->
                                 <div class="col-12">
-                                    <label class="form-label fw-bold">Cartegory Image</label>
+                                    <label class="form-label fw-bold">Product Image</label>
                                     <input type="file" name="image" class="form-control border-0 shadow-sm" required>
                                 </div>
                             </div>
@@ -76,7 +85,7 @@
                             <!-- Submit -->
                             <div class="text-end mt-4">
                                 <button type="submit" class="btn btn-success px-4 shadow">
-                                    <i class="fas fa-save me-1"></i> Save Category
+                                    <i class="fas fa-save me-1"></i> Save Sub-Category
                                 </button>
                             </div>
                         </form>
@@ -114,6 +123,41 @@
     </main>
     @include('admin.plugin')
     @include('admin.js')
+
+  <!-- jQuery Script -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    let typingTimer;   // Timer holder
+    let delay = 500;   // Delay in ms (0.5 seconds)
+
+    $('#name').on('keyup', function () {
+        clearTimeout(typingTimer); // Reset timer if user keeps typing
+
+        let slug = $(this).val()
+            .toLowerCase()
+            .trim()
+            .replace(/ /g, '-')       // replace spaces with -
+            .replace(/[^\w-]+/g, ''); // remove special characters
+
+        $('#slug').val(slug); // Show immediate slug
+
+        // Start after delay (debounce)
+        typingTimer = setTimeout(function () {
+            $.ajax({
+                url: "{{ route('admin.check.slug') }}",
+                type: "GET",
+                data: { slug: slug },
+                success: function (data) {
+                    $('#slug').val(data.slug); // Update only after server response
+                }
+            });
+        }, delay);
+    });
+</script>
+
+
+
+
 </body>
 
 </html>
