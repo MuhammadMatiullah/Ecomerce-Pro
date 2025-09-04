@@ -81,13 +81,13 @@
             <td>{{ $product->color ? implode(', ', json_decode($product->color)) : '-' }}</td>
             <td>
                 @if($product->image)
-                    <img src="{{ asset('uploads/products/'.$product->image) }}" width="50" height="50" class="rounded">
+                    <img src="{{ asset('/uploads/products/'.$product->image) }}" width="50" height="50" class="rounded">
                 @else
                     No Image
                 @endif
             </td>
             <td class="text-center">
-                <a href="#" class="btn btn-warning btn-sm">Edit</a>
+                <a href="{{ route('admin.product.edit', $product->id) }}" class="btn btn-warning btn-sm">Edit</a>
                 <form action="#" method="POST" style="display:inline;">
                     @csrf
                     @method('DELETE')

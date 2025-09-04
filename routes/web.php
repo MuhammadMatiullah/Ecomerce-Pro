@@ -11,7 +11,6 @@ use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\Admin\ProductController;
 Route::view('/', 'welcome');
 
-Auth::routes();
 
 // Admin route (use controller)
 Route::get('/admin', [AdminController::class, 'index'])
@@ -93,7 +92,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
 Route::get('admin/product', [ProductController::class, 'index'])->name('admin.product.index');
 Route::get('admin/product/create', [ProductController::class, 'create'])->name('admin.product.create');
 Route::post('admin/product/store', [ProductController::class, 'store'])->name('admin.product.store');
- Route::get('/check-slug', [ProductController::class, 'checkSlug'])->name('check.slug');
+ Route::get('admin/check-slug/product', [ProductController::class, 'checkSlug'])->name('check.slug.product');
+ Route::get('admin/product/get-subcategories/{category_id}', [ProductController::class, 'getSubcategories'])->name('admin.product.get.subcategories');
+// 👇 Edit + Update routes
+Route::get('admin/product/{id}/edit', [App\Http\Controllers\Admin\ProductController::class, 'edit'])->name('admin.product.edit');
+Route::post('admin/product/{id}/update', [App\Http\Controllers\Admin\ProductController::class, 'update'])->name('admin.product.update');
 // frontend 
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
 Route::get('/wishlist', [FrontendController::class, 'wishlist'])->name('wishlist');

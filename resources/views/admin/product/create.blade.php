@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="{{asset('assets/admin1/assets/img/apple-icon.png')}}">
     <link rel="icon" type="image/png" href="{{asset('assets/admin1/assets/img/favicon.png')}}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr"></script>
+
     <title>
         Add Product
     </title>
@@ -54,17 +57,17 @@
                                     <input type="text" id="name" name="name" class="form-control border-0 shadow-sm" placeholder="Enter product name" required>
                                 </div>
 
-                               
+
                                 <!-- Slug -->
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Slug</label>
-                                     <input type="text" id="slug" name="slug" class="form-control border-0 shadow-sm" readonly>
+                                    <input type="text" id="slug" name="slug" class="form-control border-0 shadow-sm" readonly>
                                 </div>
 
                                 <!-- Category -->
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Category</label>
-                                    <select name="category_id" class="form-control border-0 shadow-sm" required>
+                                    <select id="category" name="category_id" class="form-control border-0 shadow-sm" required>
                                         <option value="">-- Select Category --</option>
                                         @foreach($categories as $category)
                                         <option value="{{ $category->id }}">{{ $category->name }}</option>
@@ -75,13 +78,11 @@
                                 <!-- Subcategory -->
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Subcategory</label>
-                                    <select name="subcategory_id" class="form-control border-0 shadow-sm" required>
+                                    <select id="subcategory" name="subcategory_id" class="form-control border-0 shadow-sm" required>
                                         <option value="">-- Select Subcategory --</option>
-                                        @foreach($subcategories as $subcategory)
-                                        <option value="{{ $subcategory->id }}">{{ $subcategory->name }}</option>
-                                        @endforeach
                                     </select>
                                 </div>
+
 
                                 <!-- Price -->
                                 <div class="col-md-4">
@@ -114,14 +115,9 @@
 
                                 <!-- Color -->
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Color</label>
-                                    <select id="color" name="color[]" class="form-control border-0 shadow-sm select2" multiple>
-                                        <option value="Red">Red</option>
-                                        <option value="Blue">Blue</option>
-                                        <option value="Green">Green</option>
-                                        <option value="Black">Black</option>
-                                        <option value="White">White</option>
-                                    </select>
+                                   <div id="color-pickers"></div>
+<button type="button" id="add-color" class="btn btn-sm btn-primary mt-2">+ Add Color</button>
+<input type="hidden" name="colors" id="colors-hidden">
                                 </div>
 
 
@@ -153,7 +149,7 @@
                                     <i class="fas fa-save me-1"></i> Save Product
                                 </button>
                             </div>
-                            
+
                         </form>
 
                     </div>
@@ -209,34 +205,101 @@
         });
     </script>
 
-<script>
-    let typingTimer;   // Timer holder
-    let delay = 500;   // Delay in ms (0.5 seconds)
+    <script>
+        let typingTimer; // Timer holder
+        let delay = 500; // Delay in ms (0.5 seconds)
 
-    $('#name').on('keyup', function () {
-        clearTimeout(typingTimer); // Reset timer if user keeps typing
+        $('#name').on('keyup', function() {
+            clearTimeout(typingTimer); // Reset timer if user keeps typing
 
-        let slug = $(this).val()
-            .toLowerCase()
-            .trim()
-            .replace(/ /g, '-')       // replace spaces with -
-            .replace(/[^\w-]+/g, ''); // remove special characters
+            let slug = $(this).val()
+                .toLowerCase()
+                .trim()
+                .replace(/ /g, '-') // replace spaces with -
+                .replace(/[^\w-]+/g, ''); // remove special characters
 
-        $('#slug').val(slug); // Show immediate slug
+            $('#slug').val(slug); // Show immediate slug
 
-        // Start after delay (debounce)
-        typingTimer = setTimeout(function () {
-            $.ajax({
-                url: "{{ route('admin.check.slug') }}",
-                type: "GET",
-                data: { slug: slug },
-                success: function (data) {
-                    $('#slug').val(data.slug); // Update only after server response
+            // Start after delay (debounce)
+            typingTimer = setTimeout(function() {
+                $.ajax({
+                    url: "{{ route('check.slug.product') }}",
+                    type: "GET",
+                    data: {
+                        slug: slug
+                    },
+                    success: function(data) {
+                        $('#slug').val(data.slug); // Update only after server response
+                    }
+                });
+            }, delay);
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            $('#category').on('change', function() {
+                let categoryId = $(this).val();
+                let subcategoryDropdown = $('#subcategory');
+
+                subcategoryDropdown.empty().append('<option value="">-- Select Subcategory --</option>');
+
+                if (categoryId) {
+                    $.ajax({
+                        url: "{{ url('admin/product/get-subcategories') }}/" + categoryId,
+                        type: "GET",
+                        success: function(data) {
+                            if (data.length > 0) {
+                                $.each(data, function(key, subcategory) {
+                                    subcategoryDropdown.append('<option value="' + subcategory.id + '">' + subcategory.name + '</option>');
+                                });
+                            }
+                        }
+                    });
                 }
             });
-        }, delay);
-    });
+        });
+    </script>
+
+
+
+<script>
+    let colors = [];
+
+    function createPicker() {
+        const container = document.createElement('div');
+        document.getElementById('color-pickers').appendChild(container);
+
+        const pickr = Pickr.create({
+            el: container,
+            theme: 'classic',
+            default: '#ff0000',
+            components: {
+                preview: true,
+                opacity: true,
+                hue: true,
+                interaction: {
+                    hex: true,
+                    rgba: true,
+                    hsla: true,
+                    input: true,
+                    save: true
+                }
+            }
+        });
+
+        pickr.on('save', (color) => {
+            let hex = color.toHEXA().toString();
+            if (!colors.includes(hex)) {
+                colors.push(hex);
+                document.getElementById('colors-hidden').value = JSON.stringify(colors);
+            }
+        });
+    }
+
+    document.getElementById('add-color').addEventListener('click', createPicker);
 </script>
+
 </body>
 
 </html>

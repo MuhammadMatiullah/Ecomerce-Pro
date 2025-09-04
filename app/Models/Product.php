@@ -9,7 +9,6 @@ class Product extends Model
 {
     use HasFactory;
 
-    // 👇 Allowed fields for mass assignment
     protected $fillable = [
         'name',
         'slug',
@@ -25,15 +24,13 @@ class Product extends Model
         'status',
     ];
 
-    // 👇 Relation with Category
     public function category()
     {
         return $this->belongsTo(Category::class);
     }
 
-    // 👇 Relation with Subcategory
     public function subcategory()
-    {
-        return $this->belongsTo(Subcategory::class);
-    }
+{
+    return $this->belongsTo(Subcategory::class, 'subcategory_id');
+}
 }
