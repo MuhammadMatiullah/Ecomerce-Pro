@@ -39,7 +39,7 @@
                                 <h6 class="text-white text-capitalize ps-3">Edit Product</h6>
                             </div>
                             <div class="container mt-5">
-                                <form action="" method="POST" enctype="multipart/form-data">
+                                <form action="{{ route('admin.product.update', $product->id) }}" method="POST" enctype="multipart/form-data">
                                     @csrf
 
                                     <div class="row g-3">
@@ -58,7 +58,7 @@
                                             <input type="text" id="slug" name="slug"
                                                 value="{{ old('slug', $product->slug) }}"
                                                 class="form-control border-0 shadow-sm"
-                                                placeholder="Auto-generated or enter manually" required>
+                                                placeholder="Auto-generated or enter manually" readable>
                                         </div>
 
                                         <!-- Select Category -->
@@ -129,19 +129,8 @@
                                             </select>
                                         </div>
 
-                                        <!-- Color -->
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-bold">Color</label>
-                                            <select id="color" name="color[]" class="form-control border-0 shadow-sm select2" multiple>
-                                                @php $colors = old('color', json_decode($product->color ?? '[]')); @endphp
-                                                <option value="Red" {{ in_array("Red", $colors) ? "selected" : "" }}>Red</option>
-                                                <option value="Blue" {{ in_array("Blue", $colors) ? "selected" : "" }}>Blue</option>
-                                                <option value="Green" {{ in_array("Green", $colors) ? "selected" : "" }}>Green</option>
-                                                <option value="Black" {{ in_array("Black", $colors) ? "selected" : "" }}>Black</option>
-                                                <option value="White" {{ in_array("White", $colors) ? "selected" : "" }}>White</option>
-                                            </select>
 
-                                        </div>
+                                      
 
                                         <!-- Description -->
                                         <div class="col-12">
@@ -281,6 +270,10 @@
             });
         });
     </script>
+   
+
+
+
 </body>
 
 </html>

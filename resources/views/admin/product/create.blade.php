@@ -117,7 +117,7 @@
                                 <div class="col-md-6">
                                    <div id="color-pickers"></div>
 <button type="button" id="add-color" class="btn btn-sm btn-primary mt-2">+ Add Color</button>
-<input type="hidden" name="colors" id="colors-hidden">
+<input type="hidden" name="color" id="colors-hidden">
                                 </div>
 
 

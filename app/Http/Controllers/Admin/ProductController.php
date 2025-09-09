@@ -25,6 +25,7 @@ class ProductController extends Controller
 }
 public function store(Request $request)
 {
+    // dd($request);   
     $request->validate([
         'name' => 'required|string|max:255',
         'slug' => 'required|string|max:255|unique:products,slug',
@@ -110,14 +111,21 @@ public function update(Request $request, $id)
         'discount'      => $request->discount,
         'quantity'      => $request->quantity,
         'size'          => json_encode($request->size),
-        'color'         => json_encode($request->color),
-        'description'   => $request->description,
+            'description'   => $request->description,
         'image' => $request->file('image')
     ? $request->file('image')->store('products', 'public')
     : $product->image,
     ]);
 
     return redirect()->route('admin.product.index')->with('success', 'Product updated successfully!');
+}
+
+public function destroy($id)
+{
+    $product = Product::findOrFail($id);
+    $product->delete();
+
+    return redirect()->back()->with('success', 'Product deleted successfully!');
 }
 
 }

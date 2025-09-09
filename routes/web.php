@@ -9,9 +9,10 @@ use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\Admin\ProductController;
+use Illuminate\Support\Facades\Auth;
 Route::view('/', 'welcome');
 
-
+Auth::routes(); 
 // Admin route (use controller)
 Route::get('/admin', [AdminController::class, 'index'])
     ->name('admin.dashboard');
@@ -97,6 +98,11 @@ Route::post('admin/product/store', [ProductController::class, 'store'])->name('a
 // 👇 Edit + Update routes
 Route::get('admin/product/{id}/edit', [App\Http\Controllers\Admin\ProductController::class, 'edit'])->name('admin.product.edit');
 Route::post('admin/product/{id}/update', [App\Http\Controllers\Admin\ProductController::class, 'update'])->name('admin.product.update');
+Route::delete('/admin/product/{id}', [ProductController::class, 'destroy'])->name('admin.product.destroy');
+
+
+
+
 // frontend 
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
 Route::get('/wishlist', [FrontendController::class, 'wishlist'])->name('wishlist');
