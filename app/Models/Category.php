@@ -15,5 +15,9 @@ class Category extends Model
         'description',
         'image',
     ];
-    
+     // ✅ Many-to-Many with Product
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'category_product');
+    }
 }

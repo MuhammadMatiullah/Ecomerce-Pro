@@ -73,8 +73,12 @@
                                             <td>{{ $product->name }}</td>
                                             <td>{{ Str::limit($product->description, 50) }}</td>
                                             <td>{{ $product->slug }}</td>
-                                            <td>{{ $product->category->name ?? 'N/A' }}</td>
-                                            <td>{{ $product->subcategory->name ?? 'N/A' }}</td>
+                                          <td>
+    {{ $product->categories->pluck('name')->join(', ') ?: 'N/A' }}
+</td>
+<td>
+    {{ $product->subcategories->pluck('name')->join(', ') ?: 'N/A' }}
+</td>
                                             <td>{{ $product->price }}</td>
                                             <td>{{ $product->discount ?? '-' }}</td>
                                             <td>{{ $product->quantity }}</td>

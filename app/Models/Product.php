@@ -12,8 +12,6 @@ class Product extends Model
     protected $fillable = [
         'name',
         'slug',
-        'category_id',
-        'subcategory_id',
         'price',
         'discount',
         'quantity',
@@ -24,13 +22,21 @@ class Product extends Model
         'status',
     ];
 
-    public function category()
+   
+    // ✅ Many-to-Many with Category
+    public function categories()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsToMany(Category::class, 'category_product');
     }
 
-    public function subcategory()
+    // ✅ Many-to-Many with SubCategory
+   public function subcategories()
 {
-    return $this->belongsTo(Subcategory::class, 'subcategory_id');
+    return $this->belongsToMany(
+        SubCategory::class,
+        'product_subcategory',   // pivot table
+        'product_id',            // foreign key for Product
+        'subcategory_id'         // foreign key for SubCategory
+    );
 }
 }

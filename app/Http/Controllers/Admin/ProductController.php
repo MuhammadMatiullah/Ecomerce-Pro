@@ -14,7 +14,8 @@ class ProductController extends Controller
     // Show all products
    public function index()
 {
-    $products = Product::with(['category', 'subcategory'])->get();
+    $products = Product::with(['categories', 'subcategories'])->get();
+    // dd($products);
     return view('admin.product.index', compact('products'));
 }
 
@@ -25,12 +26,14 @@ class ProductController extends Controller
 }
 public function store(Request $request)
 {
-    // dd($request);   
+    // dd($request);
     $request->validate([
         'name' => 'required|string|max:255',
         'slug' => 'required|string|max:255|unique:products,slug',
-        'category_id' => 'required|exists:categories,id',
-       'subcategory_id' => 'required|exists:sub_categories,id',
+        'categories' => 'required|array',      // ✅ multiple categories
+        'categories.*' => 'exists:categories,id',
+        'subcategories' => 'required|array',   // ✅ multiple subcategories
+        'subcategories.*' => 'exists:sub_categories,id',
         'price' => 'required|numeric',
         'discount' => 'nullable|numeric',
         'quantity' => 'required|integer',
@@ -38,11 +41,10 @@ public function store(Request $request)
         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
     ]);
 
+    // ✅ Create product
     $product = new Product();
     $product->name = $request->name;
     $product->slug = $request->slug;
-    $product->category_id = $request->category_id;
-    $product->subcategory_id = $request->subcategory_id;
     $product->price = $request->price;
     $product->discount = $request->discount;
     $product->quantity = $request->quantity;
@@ -51,7 +53,7 @@ public function store(Request $request)
     $product->description = $request->description;
     $product->status = $request->has('status') ? 1 : 0;
 
-    // Upload image if exists
+    // ✅ Handle image upload
     if ($request->hasFile('image')) {
         $filename = time() . '.' . $request->image->extension();
         $request->image->move(public_path('uploads/products'), $filename);
@@ -60,9 +62,16 @@ public function store(Request $request)
 
     $product->save();
 
-    return redirect()->route('admin.product.index')->with('success', 'Product added successfully!');
+    // ✅ Attach categories & subcategories to pivot tables
+    $product->categories()->attach($request->categories);
+    $product->subcategories()->attach($request->subcategories);
 
+    // dd($product->subcategories()->pluck('id'));
+
+
+    return redirect()->route('admin.product.index')->with('success', 'Product added successfully!');
 }
+
 
  public function checkSlug(Request $request)
 {
@@ -100,32 +109,60 @@ public function edit($id)
 
 public function update(Request $request, $id)
 {
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'slug' => 'required|string|max:255|unique:products,slug,' . $id,
+        'categories' => 'required|array',
+        'categories.*' => 'exists:categories,id',
+        'subcategories' => 'required|array',
+        'subcategories.*' => 'exists:sub_categories,id',
+        'price' => 'required|numeric',
+        'discount' => 'nullable|numeric',
+        'quantity' => 'required|integer',
+        'description' => 'required|string',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
+
     $product = Product::findOrFail($id);
 
-    $product->update([
-        'name'          => $request->name,
-        'slug'          => $request->slug,
-        'category_id'   => $request->category_id,
-        'subcategory_id'=> $request->subcategory_id,
-        'price'         => $request->price,
-        'discount'      => $request->discount,
-        'quantity'      => $request->quantity,
-        'size'          => json_encode($request->size),
-            'description'   => $request->description,
-        'image' => $request->file('image')
-    ? $request->file('image')->store('products', 'public')
-    : $product->image,
-    ]);
+    $product->name = $request->name;
+    $product->slug = $request->slug;
+    $product->price = $request->price;
+    $product->discount = $request->discount;
+    $product->quantity = $request->quantity;
+    $product->size = $request->has('size') ? json_encode($request->size) : null;
+    $product->color = $request->has('color') ? json_encode($request->color) : null;
+    $product->description = $request->description;
+    $product->status = $request->has('status') ? 1 : 0;
+
+    if ($request->hasFile('image')) {
+        $filename = time() . '.' . $request->image->extension();
+        $request->image->move(public_path('uploads/products'), $filename);
+        $product->image = $filename;
+    }
+
+    $product->save();
+
+    // ✅ Update pivot tables
+    $product->categories()->sync($request->categories);
+    $product->subcategories()->sync($request->subcategories);
 
     return redirect()->route('admin.product.index')->with('success', 'Product updated successfully!');
 }
 
+
 public function destroy($id)
 {
     $product = Product::findOrFail($id);
+
+    // ✅ clean pivot relations
+    $product->categories()->detach();
+    $product->subcategories()->detach();
+
     $product->delete();
 
     return redirect()->back()->with('success', 'Product deleted successfully!');
 }
+
 
 }

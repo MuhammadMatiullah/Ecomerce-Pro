@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="{{asset('assets/admin1/assets/img/apple-icon.png')}}">
     <link rel="icon" type="image/png" href="{{asset('assets/admin1/assets/img/favicon.png')}}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css"/>
-<script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr"></script>
 
     <title>
         Add Product
@@ -66,9 +66,8 @@
 
                                 <!-- Category -->
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Category</label>
-                                    <select id="category" name="category_id" class="form-control border-0 shadow-sm" required>
-                                        <option value="">-- Select Category --</option>
+                                    <label class="form-label fw-bold">Categories</label>
+                                    <select id="category" name="categories[]" class="form-control border-0 shadow-sm select2" multiple required>
                                         @foreach($categories as $category)
                                         <option value="{{ $category->id }}">{{ $category->name }}</option>
                                         @endforeach
@@ -77,11 +76,12 @@
 
                                 <!-- Subcategory -->
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Subcategory</label>
-                                    <select id="subcategory" name="subcategory_id" class="form-control border-0 shadow-sm" required>
+                                    <label class="form-label fw-bold">Subcategories</label>
+                                    <select id="subcategory" name="subcategories[]" class="form-control border-0 shadow-sm select2" multiple required>
                                         <option value="">-- Select Subcategory --</option>
                                     </select>
                                 </div>
+
 
 
                                 <!-- Price -->
@@ -115,9 +115,9 @@
 
                                 <!-- Color -->
                                 <div class="col-md-6">
-                                   <div id="color-pickers"></div>
-<button type="button" id="add-color" class="btn btn-sm btn-primary mt-2">+ Add Color</button>
-<input type="hidden" name="color" id="colors-hidden">
+                                    <div id="color-pickers"></div>
+                                    <button type="button" id="add-color" class="btn btn-sm btn-primary mt-2">+ Add Color</button>
+                                    <input type="hidden" name="color" id="colors-hidden">
                                 </div>
 
 
@@ -239,22 +239,26 @@
     <script>
         $(document).ready(function() {
             $('#category').on('change', function() {
-                let categoryId = $(this).val();
+                let categoryIds = $(this).val(); // multiple IDs
                 let subcategoryDropdown = $('#subcategory');
 
-                subcategoryDropdown.empty().append('<option value="">-- Select Subcategory --</option>');
-
-                if (categoryId) {
-                    $.ajax({
-                        url: "{{ url('admin/product/get-subcategories') }}/" + categoryId,
-                        type: "GET",
-                        success: function(data) {
-                            if (data.length > 0) {
-                                $.each(data, function(key, subcategory) {
-                                    subcategoryDropdown.append('<option value="' + subcategory.id + '">' + subcategory.name + '</option>');
-                                });
+                subcategoryDropdown.empty(); // clear
+                if (categoryIds && categoryIds.length > 0) {
+                    categoryIds.forEach(categoryId => {
+                        $.ajax({
+                            url: "{{ url('admin/product/get-subcategories') }}/" + categoryId,
+                            type: "GET",
+                            success: function(data) {
+                                if (data.length > 0) {
+                                    $.each(data, function(key, subcategory) {
+                                        // only append if not already added
+                                        if ($("#subcategory option[value='" + subcategory.id + "']").length === 0) {
+                                            subcategoryDropdown.append('<option value="' + subcategory.id + '">' + subcategory.name + '</option>');
+                                        }
+                                    });
+                                }
                             }
-                        }
+                        });
                     });
                 }
             });
@@ -263,42 +267,42 @@
 
 
 
-<script>
-    let colors = [];
+    <script>
+        let colors = [];
 
-    function createPicker() {
-        const container = document.createElement('div');
-        document.getElementById('color-pickers').appendChild(container);
+        function createPicker() {
+            const container = document.createElement('div');
+            document.getElementById('color-pickers').appendChild(container);
 
-        const pickr = Pickr.create({
-            el: container,
-            theme: 'classic',
-            default: '#ff0000',
-            components: {
-                preview: true,
-                opacity: true,
-                hue: true,
-                interaction: {
-                    hex: true,
-                    rgba: true,
-                    hsla: true,
-                    input: true,
-                    save: true
+            const pickr = Pickr.create({
+                el: container,
+                theme: 'classic',
+                default: '#ff0000',
+                components: {
+                    preview: true,
+                    opacity: true,
+                    hue: true,
+                    interaction: {
+                        hex: true,
+                        rgba: true,
+                        hsla: true,
+                        input: true,
+                        save: true
+                    }
                 }
-            }
-        });
+            });
 
-        pickr.on('save', (color) => {
-            let hex = color.toHEXA().toString();
-            if (!colors.includes(hex)) {
-                colors.push(hex);
-                document.getElementById('colors-hidden').value = JSON.stringify(colors);
-            }
-        });
-    }
+            pickr.on('save', (color) => {
+                let hex = color.toHEXA().toString();
+                if (!colors.includes(hex)) {
+                    colors.push(hex);
+                    document.getElementById('colors-hidden').value = JSON.stringify(colors);
+                }
+            });
+        }
 
-    document.getElementById('add-color').addEventListener('click', createPicker);
-</script>
+        document.getElementById('add-color').addEventListener('click', createPicker);
+    </script>
 
 </body>
 
