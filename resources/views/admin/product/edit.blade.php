@@ -43,7 +43,6 @@
                                     @csrf
 
                                     <div class="row g-3">
-                                        <!-- Subcategory Name -->
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold">Product Name</label>
                                             <input type="text" id="name" name="name"
@@ -61,15 +60,15 @@
                                                 placeholder="Auto-generated or enter manually" readable>
                                         </div>
 
-                                        <!-- Select Category -->
-                                        <!-- Select Category -->
+
+
+                                        <!-- Category -->
                                         <div class="col-md-6">
-                                            <label class="form-label fw-bold">Category</label>
-                                            <select id="category" name="category_id" class="form-control border-0 shadow-sm" required>
-                                                <option value="">-- Select Category --</option>
+                                            <label class="form-label fw-bold">Categories</label>
+                                            <select id="category" name="categories[]" class="form-control border-0 shadow-sm select2" multiple required>
                                                 @foreach($categories as $category)
                                                 <option value="{{ $category->id }}"
-                                                    {{ old('category_id', $product->category_id ?? '') == $category->id ? 'selected' : '' }}>
+                                                    {{ in_array($category->id, $product->categories->pluck('id')->toArray()) ? 'selected' : '' }}>
                                                     {{ $category->name }}
                                                 </option>
                                                 @endforeach
@@ -78,13 +77,12 @@
 
                                         <!-- Subcategory -->
                                         <div class="col-md-6">
-                                            <label class="form-label fw-bold">Subcategory</label>
-                                            <select id="subcategory" name="subcategory_id" class="form-control border-0 shadow-sm" required>
-                                                <option value="">-- Select Subcategory --</option>
-                                                @foreach($subcategories as $sub)
-                                                <option value="{{ $sub->id }}"
-                                                    {{ old('subcategory_id', $product->subcategory_id ?? '') == $sub->id ? 'selected' : '' }}>
-                                                    {{ $sub->name }}
+                                            <label class="form-label fw-bold">Subcategories</label>
+                                            <select id="subcategory" name="subcategories[]" class="form-control border-0 shadow-sm select2" multiple required>
+                                                @foreach($subcategories as $subcategory)
+                                                <option value="{{ $subcategory->id }}"
+                                                    {{ in_array($subcategory->id, $product->subcategories->pluck('id')->toArray()) ? 'selected' : '' }}>
+                                                    {{ $subcategory->name }}
                                                 </option>
                                                 @endforeach
                                             </select>
@@ -130,7 +128,7 @@
                                         </div>
 
 
-                                      
+
 
                                         <!-- Description -->
                                         <div class="col-12">
@@ -249,28 +247,32 @@
     <script>
         $(document).ready(function() {
             $('#category').on('change', function() {
-                let categoryId = $(this).val();
+                let categoryIds = $(this).val(); // multiple IDs
                 let subcategoryDropdown = $('#subcategory');
 
-                subcategoryDropdown.empty().append('<option value="">-- Select Subcategory --</option>');
-
-                if (categoryId) {
-                    $.ajax({
-                        url: "{{ url('admin/product/get-subcategories') }}/" + categoryId,
-                        type: "GET",
-                        success: function(data) {
-                            if (data.length > 0) {
-                                $.each(data, function(key, subcategory) {
-                                    subcategoryDropdown.append('<option value="' + subcategory.id + '">' + subcategory.name + '</option>');
-                                });
+                subcategoryDropdown.empty(); // clear
+                if (categoryIds && categoryIds.length > 0) {
+                    categoryIds.forEach(categoryId => {
+                        $.ajax({
+                            url: "{{ url('admin/product/get-subcategories') }}/" + categoryId,
+                            type: "GET",
+                            success: function(data) {
+                                if (data.length > 0) {
+                                    $.each(data, function(key, subcategory) {
+                                        // only append if not already added
+                                        if ($("#subcategory option[value='" + subcategory.id + "']").length === 0) {
+                                            subcategoryDropdown.append('<option value="' + subcategory.id + '">' + subcategory.name + '</option>');
+                                        }
+                                    });
+                                }
                             }
-                        }
+                        });
                     });
                 }
             });
         });
     </script>
-   
+
 
 
 

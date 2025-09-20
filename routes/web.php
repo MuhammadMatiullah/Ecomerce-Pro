@@ -10,6 +10,9 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Admin\SliderController;
+
+
 Route::view('/', 'welcome');
 
 Auth::routes(); 
@@ -101,7 +104,26 @@ Route::post('admin/product/{id}/update', [App\Http\Controllers\Admin\ProductCont
 Route::delete('/admin/product/{id}', [ProductController::class, 'destroy'])->name('admin.product.destroy');
 
 
+Route::prefix('admin')->name('admin.')->group(function () {
+    // Show all sliders
+    Route::get('sliders', [SliderController::class, 'index'])->name('sliders.index');
 
+    // Show create form
+    Route::get('sliders/create', [SliderController::class, 'create'])->name('slider.create');
+
+    // Store new slider
+   Route::post('sliders/store', [SliderController::class, 'store'])->name('sliders.store');
+
+
+    // Show edit form
+    Route::get('sliders/{id}/edit', [SliderController::class, 'edit'])->name('sliders.edit');
+
+    // Update slider
+    Route::post('sliders/{id}/update', [SliderController::class, 'update'])->name('sliders.update');
+
+    // Delete slider
+    Route::delete('sliders/{id}', [SliderController::class, 'destroy'])->name('sliders.destroy');
+});
 
 // frontend 
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');

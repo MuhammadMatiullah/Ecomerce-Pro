@@ -21,11 +21,11 @@
           <i class="material-symbols-rounded opacity-5">supervisor_account</i>
           <span class="nav-link-text ms-1">Users</span>
         </a>
-       <a class="nav-link {{ Request::is('admin/category*') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
-   href="{{ route('category') }}">
-   <i class="material-symbols-rounded opacity-5">category</i>
-   <span class="nav-link-text ms-1">Category</span>
-</a>
+        <a class="nav-link {{ Request::is('admin/category*') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
+          href="{{ route('category') }}">
+          <i class="material-symbols-rounded opacity-5">category</i>
+          <span class="nav-link-text ms-1">Category</span>
+        </a>
 
 
         <a class="nav-link {{ Request::is('admin/subcategory*') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
@@ -34,11 +34,17 @@
           <span class="nav-link-text ms-1">Sub-Category</span>
         </a>
 
+        <a class="nav-link {{ Request::is('admin/sliders*') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
+          href="{{ route('admin.sliders.index') }}">
+          <i class="material-symbols-rounded opacity-5">inventory</i>
+          <span class="nav-link-text ms-1">Slider</span>
+        </a>
+
         <a class="nav-link {{ Request::is('admin/product*') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
-   href="{{ route('admin.product.index') }}">
-   <i class="material-symbols-rounded opacity-5">inventory</i>
-   <span class="nav-link-text ms-1">Product</span>
-</a>
+          href="{{ route('admin.product.index') }}">
+          <i class="material-symbols-rounded opacity-5">inventory</i>
+          <span class="nav-link-text ms-1">Product</span>
+        </a>
 
 
       </li>

@@ -4,24 +4,26 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="apple-touch-icon" sizes="76x76" href="{{asset('assets/admin1/assets/img/apple-icon.png')}}">
-    <link rel="icon" type="image/png" href="{{asset('assets/admin1/assets/img/favicon.png')}}">
+    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('assets/admin1/assets/img/apple-icon.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('assets/admin1/assets/img/favicon.png') }}">
     <title>
-        Category
+        Edit Slider
     </title>
     @include('admin.css')
 </head>
 
-<body class="g-sidenav-show  bg-gray-100">
+<body class="g-sidenav-show bg-gray-100">
     @include('admin.sidebar')
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
         <!-- Navbar -->
-        <nav class="navbar navbar-main navbar-expand-lg px-0 mx-3 shadow-none border-radius-xl" id="navbarBlur" data-scroll="true">
+        <nav class="navbar navbar-main navbar-expand-lg px-0 mx-3 shadow-none border-radius-xl" id="navbarBlur"
+            data-scroll="true">
             <div class="container-fluid py-1 px-3">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
-                        <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">Pages</a></li>
-                        <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Edit</li>
+                        <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark"
+                                href="javascript:;">Pages</a></li>
+                        <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Edit Slider</li>
                     </ol>
                 </nav>
                 @include('admin.navbar')
@@ -30,65 +32,64 @@
         <!-- End Navbar -->
 
         <div class="container-fluid py-2">
-
             <div class="row">
                 <div class="col-12">
                     <div class="card my-4">
                         <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
                             <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
-                                <h6 class="text-white text-capitalize ps-3">Edit Category</h6>
+                                <h6 class="text-white text-capitalize ps-3">✏️ Edit Slider</h6>
                             </div>
+
                             <div class="container mt-5">
-                                <form action="{{ route('category.update', $category->id) }}" method="POST" enctype="multipart/form-data">
+                                <form action="{{ route('admin.sliders.update', $slider->id) }}" method="POST" enctype="multipart/form-data">
                                     @csrf
 
                                     <div class="row g-3">
-                                        <!-- Product Name -->
+                                        <!-- Title -->
                                         <div class="col-md-6">
-                                            <label class="form-label fw-bold">Category Name</label>
-                                            <input type="text" name="name" value="{{ old('name', $category->name) }}" class="form-control border-0 shadow-sm" placeholder="Enter Category name" required>
+                                            <label class="form-label fw-bold">Title</label>
+                                            <input type="text" name="title" value="{{ old('title', $slider->title) }}"
+                                                class="form-control border-0 shadow-sm" placeholder="Enter Slider title" required>
                                         </div>
 
-                                        <!-- Slug -->
+                                        <!-- Subtitle -->
                                         <div class="col-md-6">
-                                            <label class="form-label fw-bold">Slug</label>
-                                            <input type="text" name="slug" value="{{ old('slug', $category->slug) }}" class="form-control border-0 shadow-sm" placeholder="Auto-generated or enter manually" required>
+                                            <label class="form-label fw-bold">Subtitle</label>
+                                            <input type="text" name="subtitle" value="{{ old('subtitle', $slider->subtitle) }}"
+                                                class="form-control border-0 shadow-sm" placeholder="Enter Slider subtitle">
                                         </div>
 
-                                        <!-- Description -->
+                                        <!-- Summary -->
                                         <div class="col-12">
-                                            <label class="form-label fw-bold">Description</label>
-                                            <textarea name="description" class="form-control border-0 shadow-sm" rows="4" placeholder="Write Category description..." required>{{ old('description', $category->description) }}</textarea>
+                                            <label class="form-label fw-bold">Summary</label>
+                                            <textarea name="summary" class="form-control border-0 shadow-sm" rows="4"
+                                                placeholder="Write a short summary...">{{ old('summary', $slider->summary) }}</textarea>
                                         </div>
 
                                         <!-- Image -->
                                         <div class="col-12">
-                                            <label class="form-label fw-bold">Category Image</label><br>
+                                            <label class="form-label fw-bold">Slider Image</label><br>
 
-                                            @if($category->image)
-                                            <img src="{{ Storage::url($category->image) }}"
-                                                alt="Category Image"
-                                                width="120"
-                                                class="mb-2 rounded">
+                                            @if($slider->image)
+                                                <img src="{{ asset('uploads/sliders/'.$slider->image) }}"
+                                                    alt="Slider Image" width="150" class="mb-2 rounded">
                                             @endif
 
                                             <input type="file" name="image" class="form-control border-0 shadow-sm">
                                             <small class="text-muted">Leave empty to keep current image.</small>
                                         </div>
-
                                     </div>
 
                                     <!-- Submit -->
                                     <div class="text-end mt-4">
                                         <button type="submit" class="btn btn-success px-4 shadow">
-                                            <i class="fas fa-save me-1"></i> Update Category
+                                            <i class="fas fa-save me-1"></i> Update Slider
                                         </button>
                                     </div>
                                 </form>
                             </div>
 
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -102,16 +103,21 @@
                                     document.write(new Date().getFullYear())
                                 </script>,
                                 made with <i class="fa fa-heart"></i> by
-                                <a href="https://www.creative-tim.com" class="font-weight-bold" target="_blank">Creative Tim</a>
+                                <a href="https://www.creative-tim.com" class="font-weight-bold" target="_blank">Creative
+                                    Tim</a>
                                 for a better web.
                             </div>
                         </div>
                         <div class="col-lg-6">
                             <ul class="nav nav-footer justify-content-center justify-content-lg-end">
-                                <li class="nav-item"><a href="https://www.creative-tim.com" class="nav-link text-muted" target="_blank">Creative Tim</a></li>
-                                <li class="nav-item"><a href="https://www.creative-tim.com/presentation" class="nav-link text-muted" target="_blank">About Us</a></li>
-                                <li class="nav-item"><a href="https://www.creative-tim.com/blog" class="nav-link text-muted" target="_blank">Blog</a></li>
-                                <li class="nav-item"><a href="https://www.creative-tim.com/license" class="nav-link pe-0 text-muted" target="_blank">License</a></li>
+                                <li class="nav-item"><a href="https://www.creative-tim.com"
+                                        class="nav-link text-muted" target="_blank">Creative Tim</a></li>
+                                <li class="nav-item"><a href="https://www.creative-tim.com/presentation"
+                                        class="nav-link text-muted" target="_blank">About Us</a></li>
+                                <li class="nav-item"><a href="https://www.creative-tim.com/blog"
+                                        class="nav-link text-muted" target="_blank">Blog</a></li>
+                                <li class="nav-item"><a href="https://www.creative-tim.com/license"
+                                        class="nav-link pe-0 text-muted" target="_blank">License</a></li>
                             </ul>
                         </div>
                     </div>

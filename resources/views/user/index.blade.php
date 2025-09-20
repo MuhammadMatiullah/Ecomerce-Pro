@@ -33,7 +33,8 @@
     @include('user.header')
     <!-- Header END -->
 
-    @include('user.sidebar')
+   @include('user.slider', ['sliders' => $sliders])
+
 
     @include('user.body')
 
