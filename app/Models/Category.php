@@ -11,7 +11,7 @@ class Category extends Model
 
     protected $fillable = [
         'name',
-        'slug',
+        'slug', 
         'description',
         'image',
     ];
@@ -19,5 +19,10 @@ class Category extends Model
     public function products()
     {
         return $this->belongsToMany(Product::class, 'category_product');
+    }
+     // ✅ One-to-Many with SubCategory
+    public function subcategories()
+    {
+        return $this->hasMany(SubCategory::class, 'category_id');
     }
 }

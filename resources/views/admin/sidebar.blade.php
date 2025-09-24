@@ -22,7 +22,7 @@
           <span class="nav-link-text ms-1">Users</span>
         </a>
         <a class="nav-link {{ Request::is('admin/category*') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
-          href="{{ route('category') }}">
+          href="{{ route('admin.category') }}">
           <i class="material-symbols-rounded opacity-5">category</i>
           <span class="nav-link-text ms-1">Category</span>
         </a>

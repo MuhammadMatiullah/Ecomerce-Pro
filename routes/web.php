@@ -17,8 +17,6 @@ Route::view('/', 'welcome');
 
 Auth::routes(); 
 // Admin route (use controller)
-Route::get('/admin', [AdminController::class, 'index'])
-    ->name('admin.dashboard');
 
 // Custom login/register routes
 Route::get('/login/admin', [LoginController::class, 'showAdminLoginForm']);
@@ -42,20 +40,14 @@ Route::view('/writer', 'writer')->middleware('auth');
 
 
 
+
+
+
+
 // Users routes for admin
 Route::prefix('admin')->name('admin.')->group(function () {
-    // Show all users
-    Route::get('users', [UserController::class, 'index'])->name('users.index');
-    // Show create form
-    Route::get('users/create', [UserController::class, 'create'])->name('users.create');
-    // Store user
-    Route::post('users', [UserController::class, 'store'])->name('users.store');
-    // Show edit form
-    Route::get('users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
-    // Update user
-    Route::put('users/{id}', [UserController::class, 'update'])->name('users.update');
-    // Delete user
-    Route::delete('users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+
+  
 });
 
 
@@ -63,23 +55,17 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 
 // Show all categories (list)
-Route::get('/admin/category', [CategoryController::class, 'category'])->name('category');
-// Show create form
-Route::get('/category/create', [CategoryController::class, 'create'])->name('category.create');
-// Save category (POST)
-Route::post('/category/store', [CategoryController::class, 'store'])->name('category.store');
-// Show edit form
-Route::get('/category/{id}/edit', [CategoryController::class, 'edit'])->name('category.edit');
-// Update category (PUT/PATCH)
-Route::post('/category/update/{id}', [CategoryController::class, 'update'])->name('category.update');
-// Delete
-Route::delete('admin/category/{id}', [CategoryController::class, 'destroy'])->name('category.destroy');
+
 
 
 
 // Sub-Category routes
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('subcategory', [SubCategoryController::class, 'index'])->name('subcategory.index');
+
+Route::prefix('admin')
+    ->name('admin.')
+    ->middleware(['auth:admin']) // 👈 check authentication with admin guard
+    ->group(function () {
+           Route::get('subcategory', [SubCategoryController::class, 'index'])->name('subcategory.index');
     // Show create form
     Route::get('subcategory/create', [SubCategoryController::class, 'create'])->name('subcategory.create');
     Route::post('subcategory/store', [SubCategoryController::class, 'store'])->name('subcategory.store');
@@ -89,24 +75,31 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('subcategory/{id}/update', [SubCategoryController::class, 'update'])->name('subcategory.update');
     // Delete subcategory
     Route::delete('admin/subcategory/{id}', [SubCategoryController::class, 'destroy'])->name('subcategory.destroy');
-});
 
-//PRODUCT
 
-Route::get('admin/product', [ProductController::class, 'index'])->name('admin.product.index');
-Route::get('admin/product/create', [ProductController::class, 'create'])->name('admin.product.create');
-Route::post('admin/product/store', [ProductController::class, 'store'])->name('admin.product.store');
- Route::get('admin/check-slug/product', [ProductController::class, 'checkSlug'])->name('check.slug.product');
- Route::get('admin/product/get-subcategories/{category_id}', [ProductController::class, 'getSubcategories'])->name('admin.product.get.subcategories');
+    Route::get('/category', [CategoryController::class, 'category'])->name('category');
+// Show create form
+Route::get('/category/create', [CategoryController::class, 'create'])->name('category.create');
+// Save category (POST)
+Route::post('/category/store', [CategoryController::class, 'store'])->name('category.store');
+// Show edit form
+Route::get('/category/{id}/edit', [CategoryController::class, 'edit'])->name('category.edit');
+// Update category (PUT/PATCH)
+Route::post('/category/update/{id}', [CategoryController::class, 'update'])->name('category.update');
+// Delete
+Route::delete('/category/{id}', [CategoryController::class, 'destroy'])->name('category.destroy');
+
+Route::get('/product', [ProductController::class, 'index'])->name('product.index');
+Route::get('/product/create', [ProductController::class, 'create'])->name('product.create');
+Route::post('/product/store', [ProductController::class, 'store'])->name('product.store');
+ Route::get('/check-slug/product', [ProductController::class, 'checkSlug'])->name('check.slug.product');
+ Route::get('/product/get-subcategories/{category_id}', [ProductController::class, 'getSubcategories'])->name('product.get.subcategories');
+ Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
 // 👇 Edit + Update routes
-Route::get('admin/product/{id}/edit', [App\Http\Controllers\Admin\ProductController::class, 'edit'])->name('admin.product.edit');
-Route::post('admin/product/{id}/update', [App\Http\Controllers\Admin\ProductController::class, 'update'])->name('admin.product.update');
-Route::delete('/admin/product/{id}', [ProductController::class, 'destroy'])->name('admin.product.destroy');
-
-
-Route::prefix('admin')->name('admin.')->group(function () {
-    // Show all sliders
-    Route::get('sliders', [SliderController::class, 'index'])->name('sliders.index');
+Route::get('/product/{id}/edit', [App\Http\Controllers\Admin\ProductController::class, 'edit'])->name('product.edit');
+Route::post('/product/{id}/update', [App\Http\Controllers\Admin\ProductController::class, 'update'])->name('product.update');
+Route::delete('/product/{id}', [ProductController::class, 'destroy'])->name('product.destroy');
+ Route::get('sliders', [SliderController::class, 'index'])->name('sliders.index');
 
     // Show create form
     Route::get('sliders/create', [SliderController::class, 'create'])->name('slider.create');
@@ -123,9 +116,40 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     // Delete slider
     Route::delete('sliders/{id}', [SliderController::class, 'destroy'])->name('sliders.destroy');
+
+      Route::get('/', [AdminController::class, 'index'])
+    ->name('dashboard');
+
+    // Show all users
+    Route::get('users', [UserController::class, 'index'])->name('users.index');
+    // Show create form
+    Route::get('users/create', [UserController::class, 'create'])->name('users.create');
+    // Store user
+    Route::post('users', [UserController::class, 'store'])->name('users.store');
+    // Show edit form
+    Route::get('users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
+    // Update user
+    Route::put('users/{id}', [UserController::class, 'update'])->name('users.update');
+    // Delete user
+    Route::delete('users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
 });
 
+//PRODUCT
+
+
+
+
+
 // frontend 
+
+
+
+
+
+
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
 Route::get('/wishlist', [FrontendController::class, 'wishlist'])->name('wishlist');
 Route::get('/checkout', [FrontendController::class, 'checkout'])->name('checkout');
+Route::get('/product/{slug}', [FrontendController::class, 'productDetails'])->name('product.show');
+Route::get('/category/{id}', [FrontendController::class, 'categoryShow'])->name('category.show');
+Route::get('/subcategory/{id}', [FrontendController::class, 'subcategoryShow'])->name('subcategory.show');

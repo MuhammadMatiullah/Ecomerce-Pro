@@ -12,12 +12,16 @@ use Illuminate\Support\Str;
 class ProductController extends Controller
 {
     // Show all products
-   public function index()
+ public function index()
 {
-    $products = Product::with(['categories', 'subcategories'])->get();
-    // dd($products);
+    $products = Product::with(['categories', 'subcategories'])
+        ->latest()   // orders by created_at desc
+        ->take(6)    // only latest 6
+        ->get();
+
     return view('admin.product.index', compact('products'));
 }
+
 
      public function create()
 {
@@ -162,6 +166,11 @@ public function destroy($id)
     $product->delete();
 
     return redirect()->back()->with('success', 'Product deleted successfully!');
+}
+public function show($slug)
+{
+    $product = Product::where('slug', $slug)->firstOrFail();
+    return view('user.product.show', compact('product'));
 }
 
 
