@@ -39,4 +39,14 @@ class Product extends Model
         'subcategory_id'         // foreign key for SubCategory
     );
 }
+
+
+
+public function orders()
+{
+    return $this->belongsToMany(Order::class, 'order_product')
+                ->withPivot('quantity', 'price')
+                ->withTimestamps();
+}
+
 }

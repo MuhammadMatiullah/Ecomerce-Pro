@@ -1,10 +1,13 @@
 <?php
+
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
-use App\Models\Product;   
-use App\Models\Slider; 
+use App\Models\Product;
+use App\Models\Slider;
 use App\Models\Category;
 use App\Models\SubCategory;
+use App\Models\Cart;
 
 class FrontendController extends Controller
 {
@@ -14,7 +17,7 @@ class FrontendController extends Controller
         $products = Product::latest()->take(6)->get();
 
         // ✅ Get sliders from database
-    $sliders = Slider::where('status', 1)->latest()->get();
+        $sliders = Slider::where('status', 1)->latest()->get();
 
         // ✅ Get categories with subcategories
         $categories = Category::with('subcategories')->get();
@@ -28,29 +31,47 @@ class FrontendController extends Controller
         return view('user.wishlist');
     }
 
-    public function checkout()
-    {
-        return view('user.checkout.chectout');
-    }
+  public function checkout()
+{
+    $cartItems = Cart::with('product')
+        ->where('user_id', auth()->id())
+        ->get();
+
+    // Subtotal = sum of all (price * quantity)
+    $subtotal = $cartItems->sum(function ($item) {
+        return $item->product->price * $item->quantity;
+    });
+
+    // Example: flat shipping cost (you can make this dynamic too)
+    $shipping = 3.00;
+
+    // Total = subtotal + shipping
+    $total = $subtotal + $shipping;
+
+    return view('user.checkout.chectout', compact('cartItems', 'subtotal', 'shipping', 'total'));
+}
+
+
     public function productDetails($slug)
-{
-    $product = \App\Models\Product::with(['categories', 'subcategories'])
-        ->where('slug', $slug)
-        ->firstOrFail();
+    {
+        $product = \App\Models\Product::with(['categories', 'subcategories'])
+            ->where('slug', $slug)
+            ->firstOrFail();
 
-    return view('user.product.show', compact('product'));
-}
-public function categoryShow($id)
-{
-    $category = Category::with('subcategories', 'products')->findOrFail($id);
+        return view('user.product.show', compact('product'));
+    }
 
-    return view('user.category', compact('category'));
-}
+    public function categoryShow($id)
+    {
+        $category = Category::with('subcategories', 'products')->findOrFail($id);
 
-public function subcategoryShow($id)
-{
-    $subcategory = SubCategory::with('products')->findOrFail($id);
+        return view('user.category', compact('category'));
+    }
 
-    return view('user.subcategory', compact('subcategory'));
-}
+    public function subcategoryShow($id)
+    {
+        $subcategory = SubCategory::with('products')->findOrFail($id);
+
+        return view('user.subcategory', compact('subcategory'));
+    }
 }

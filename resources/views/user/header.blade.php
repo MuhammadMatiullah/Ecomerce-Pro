@@ -51,7 +51,7 @@
             <li><a href="shop-account.html">My Account</a></li>
             <li><a href="{{ url('/wishlist')}}">My Wishlist</a></li>
             <li><a href="{{ url('/checkout')}}">Checkout</a></li>
-
+ 
             @guest
             <!-- If NOT logged in -->
             <li><a href="{{ route('login') }}">Login</a></li>
@@ -61,7 +61,7 @@
             <li>
               <a href="{{ route('logout') }}"
                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                Logout 
+                Logout
               </a>
               <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                 @csrf
@@ -79,86 +79,62 @@
   <!-- BEGIN HEADER -->
   <div class="header">
     <div class="container">
-      <a class="site-logo" href="shop-index.html"><img src="{{ asset('assets/user1/theme/assets/corporate/img/logos/logo-shop-red.png') }}" alt="Shop Logo" alt="Metronic Shop UI"></a>
+      <a class="site-logo" href="{{ route('frontend.index') }}"><img src="{{ asset('assets/user1/theme/assets/corporate/img/logos/logo-shop-red.png') }}" alt="Shop Logo" alt="Metronic Shop UI"></a>
 
       <a href="javascript:void(0);" class="mobi-toggler"><i class="fa fa-bars"></i></a>
 
       <!-- BEGIN CART -->
       <div class="top-cart-block">
         <div class="top-cart-info">
-          <a href="javascript:void(0);" class="top-cart-info-count">3 items</a>
-          <a href="javascript:void(0);" class="top-cart-info-value">$1260</a>
+          <a href="javascript:void(0);" class="top-cart-info-count">
+            {{ $globalCartCount ?? 0 }} items
+          </a>
+          <a href="javascript:void(0);" class="top-cart-info-value">
+            ${{ $globalCartTotal ?? 0 }}
+          </a>
         </div>
         <i class="fa fa-shopping-cart"></i>
 
         <div class="top-cart-content-wrapper">
           <div class="top-cart-content">
             <ul class="scroller" style="height: 250px;">
+              @forelse($globalCartItems ?? [] as $item)
               <li>
-                <a href="shop-item.html"><img src="{{ asset('assets/user1/theme/assets/corporate/img/cart-img.jpg')}}" alt="Rolex Classic Watch" width="37" height="34"></a>
-                <span class="cart-content-count">x 1</span>
-                <strong><a href="shop-item.html">Rolex Classic Watch</a></strong>
-                <em>$1230</em>
-                <a href="javascript:void(0);" class="del-goods">&nbsp;</a>
+                <a href="{{ route('product.show', $item->product->slug) }}">
+                  <img src="{{ asset('uploads/products/' . $item->product->image) }}"
+                    alt="{{ $item->product->name }}" width="37" height="34">
+                </a>
+                <span class="cart-content-count">x {{ $item->quantity }}</span>
+                <strong>
+                  <a href="{{ route('product.show', $item->product->slug) }}">
+                    {{ $item->product->name }}
+                  </a>
+                </strong>
+                <em>${{ $item->product->price * $item->quantity }}</em>
+
+                <form action="{{ route('cart.destroy', $item->id) }}" method="POST" style="display:inline;">
+                  @csrf
+                  @method('DELETE')
+                  <button type="submit" class="del-goods" style="border:none;background:none;cursor:pointer;">
+                    <i class="fa fa-times text-danger"></i>
+                  </button>
+                </form>
+
               </li>
-              <li>
-                <a href="shop-item.html"><img src="{{ asset('assets/user1/theme/assets/corporate/img/cart-img.jpg')}}" alt="Rolex Classic Watch" width="37" height="34"></a>
-                <span class="cart-content-count">x 1</span>
-                <strong><a href="shop-item.html">Rolex Classic Watch</a></strong>
-                <em>$1230</em>
-                <a href="javascript:void(0);" class="del-goods">&nbsp;</a>
-              </li>
-              <li>
-                <a href="shop-item.html"><img src="{{asset('assets/user1/theme/assets/pages/img/cart-img.jpg')}}" alt="Rolex Classic Watch" width="37" height="34"></a>
-                <span class="cart-content-count">x 1</span>
-                <strong><a href="shop-item.html">Rolex Classic Watch</a></strong>
-                <em>$1230</em>
-                <a href="javascript:void(0);" class="del-goods">&nbsp;</a>
-              </li>
-              <li>
-                <a href="shop-item.html"><img src="{{asset('assets/user1/theme/assets/pages/img/cart-img.jpg')}}" alt="Rolex Classic Watch" width="37" height="34"></a>
-                <span class="cart-content-count">x 1</span>
-                <strong><a href="shop-item.html">Rolex Classic Watch</a></strong>
-                <em>$1230</em>
-                <a href="javascript:void(0);" class="del-goods">&nbsp;</a>
-              </li>
-              <li>
-                <a href="shop-item.html"><img src="{{asset('assets/user1/theme/assets/pages/img/cart-img.jpg')}}" alt="Rolex Classic Watch" width="37" height="34"></a>
-                <span class="cart-content-count">x 1</span>
-                <strong><a href="shop-item.html">Rolex Classic Watch</a></strong>
-                <em>$1230</em>
-                <a href="javascript:void(0);" class="del-goods">&nbsp;</a>
-              </li>
-              <li>
-                <a href="shop-item.html"><img src="{{asset('assets/user1/theme/assets/pages/img/cart-img.jpg')}}" alt="Rolex Classic Watch" width="37" height="34"></a>
-                <span class="cart-content-count">x 1</span>
-                <strong><a href="shop-item.html">Rolex Classic Watch</a></strong>
-                <em>$1230</em>
-                <a href="javascript:void(0);" class="del-goods">&nbsp;</a>
-              </li>
-              <li>
-                <a href="shop-item.html"><img src="{{asset('assets/user1/theme/assets/pages/img/cart-img.jpg')}}" alt="Rolex Classic Watch" width="37" height="34"></a>
-                <span class="cart-content-count">x 1</span>
-                <strong><a href="shop-item.html">Rolex Classic Watch</a></strong>
-                <em>$1230</em>
-                <a href="javascript:void(0);" class="del-goods">&nbsp;</a>
-              </li>
-              <li>
-                <a href="shop-item.html"><img src="{{asset('assets/user1/theme/assets/pages/img/cart-img.jpg')}}" alt="Rolex Classic Watch" width="37" height="34"></a>
-                <span class="cart-content-count">x 1</span>
-                <strong><a href="shop-item.html">Rolex Classic Watch</a></strong>
-                <em>$1230</em>
-                <a href="javascript:void(0);" class="del-goods">&nbsp;</a>
-              </li>
+              @empty
+              <li><em>Your cart is empty</em></li>
+              @endforelse
             </ul>
+
             <div class="text-right">
-              <a href="shop-shopping-cart.html" class="btn btn-default">View Cart</a>
-              <a href="shop-checkout.html" class="btn btn-primary">Checkout</a>
+              <a href="{{ route('cart.index') }}" class="btn btn-default">View Cart</a>
+              <a href="{{ url('/checkout')}}" class="btn btn-primary">Checkout</a>
             </div>
           </div>
         </div>
       </div>
-      <!--END CART -->
+      <!-- END CART -->
+
 
       <!-- BEGIN NAVIGATION -->
       <div class="header-navigation">

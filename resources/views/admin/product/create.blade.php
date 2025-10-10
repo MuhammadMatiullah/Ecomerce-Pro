@@ -223,7 +223,7 @@
             // Start after delay (debounce)
             typingTimer = setTimeout(function() {
                 $.ajax({
-                    url: "{{ route('check.slug.product') }}",
+                    url: "{{ route('admin.check.slug.product') }}",
                     type: "GET",
                     data: {
                         slug: slug
