@@ -100,14 +100,14 @@
 
                                             <!-- Actions -->
                                             <td class="align-middle text-center">
-                                                <a href="{{ route('admin.subcategory.edit', $subcategory->id) }}" class="text-warning font-weight-bold text-xs me-2">Edit</a>
+                                                <a href="{{ route('admin.subcategory.edit', $subcategory->id) }}" class="btn btn-warning btn-sm">Edit</a>
                                                 <form action="{{ route('admin.subcategory.destroy', $subcategory->id) }}"
                                                     method="POST"
                                                     style="display:inline-block;"
                                                     onsubmit="return confirm('Are you sure you want to delete this subcategory?');">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-link text-danger font-weight-bold text-xs p-0 m-0 border-0 bg-transparent">
+                                                    <button type="submit" class="btn btn-danger btn-sm">
                                                         Delete
                                                     </button>
                                                 </form>

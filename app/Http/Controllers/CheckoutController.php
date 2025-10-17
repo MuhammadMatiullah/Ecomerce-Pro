@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Address; 
-
+use App\Models\Checkout;
 
 class CheckoutController extends Controller
 {
@@ -80,5 +80,28 @@ public function saveAddresses(Request $request)
 
     return response()->json(['success' => false]);
 }
+
+
+ public function clear(Request $request)
+{
+    try {
+        $user = Auth::user();
+
+        // ✅ Clear checkout session data
+        session()->forget(['checkout_data', 'addresses']);
+
+        // ✅ Delete temporary addresses (optional)
+        $user->addresses()->delete();
+
+        // ✅ Clear user's cart
+        \App\Models\Cart::where('user_id', $user->id)->delete();
+
+        return response()->json(['success' => true, 'message' => 'Checkout cleared successfully']);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'message' => $e->getMessage()]);
+    }
 }
+}
+
+
 

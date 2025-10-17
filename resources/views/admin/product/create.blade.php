@@ -47,6 +47,18 @@
 
                     </div>
                     <div class="container mt-5">
+                        @if ($errors->any())
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">X</button>
+                        </div>
+                        @endif
+
+
                         <form action="{{ route('admin.product.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
 
@@ -54,64 +66,64 @@
                                 <!-- Product Name -->
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Product Name</label>
-                                    <input type="text" id="name" name="name" class="form-control border-0 shadow-sm" placeholder="Enter product name" required>
+                                    <input type="text" id="name" name="name" class="form-control border-0 shadow-sm" placeholder="Enter product name" value="{{ old('name') }}" required>
                                 </div>
 
 
                                 <!-- Slug -->
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Slug</label>
-                                    <input type="text" id="slug" name="slug" class="form-control border-0 shadow-sm" readonly>
+                                    <input type="text" id="slug" name="slug" class="form-control border-0 shadow-sm" value="{{ old('slug') }}" readonly>
                                 </div>
 
                                 <!-- Category -->
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Categories</label>
-                                    <select id="category" name="categories[]" class="form-control border-0 shadow-sm select2" multiple required>
+                                    <select id="category" name="categories[]" class="form-control select2" multiple required>
                                         @foreach($categories as $category)
-                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                        <option value="{{ $category->id }}" {{ collect(old('categories'))->contains($category->id) ? 'selected' : '' }}>
+                                            {{ $category->name }}
+                                        </option>
                                         @endforeach
                                     </select>
                                 </div>
 
                                 <!-- Subcategory -->
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold">Subcategories</label>
-                                    <select id="subcategory" name="subcategories[]" class="form-control border-0 shadow-sm select2" multiple required>
+                                <div class="col-md-6"> <label class="form-label fw-bold">Subcategories</label> <select id="subcategory" name="subcategories[]" class="form-control border-0 shadow-sm select2" multiple required>
                                         <option value="">-- Select Subcategory --</option>
-                                    </select>
-                                </div>
+                                    </select> </div>
 
 
 
                                 <!-- Price -->
                                 <div class="col-md-4">
                                     <label class="form-label fw-bold">Price</label>
-                                    <input type="number" name="price" class="form-control border-0 shadow-sm" step="0.01" placeholder="Enter price" required>
+                                    <input type="number" name="price" class="form-control border-0 shadow-sm" step="0.01" placeholder="Enter price" value="{{ old('price') }}" required>
                                 </div>
 
                                 <!-- Discount -->
-                                <div class="col-md-4">
+                                <div class=" col-md-4">
                                     <label class="form-label fw-bold">Discount (%)</label>
-                                    <input type="number" name="discount" class="form-control border-0 shadow-sm" step="0.01" placeholder="Enter discount">
+                                    <input type="number" name="discount" class="form-control border-0 shadow-sm" step="0.01" placeholder="Enter discount" value="{{ old('discount') }}">
                                 </div>
 
                                 <!-- Quantity -->
                                 <div class="col-md-4">
                                     <label class="form-label fw-bold">Quantity</label>
-                                    <input type="number" name="quantity" class="form-control border-0 shadow-sm" placeholder="Enter stock quantity" required>
+                                    <input type="number" name="quantity" class="form-control border-0 shadow-sm" placeholder="Enter stock quantity" value="{{ old('quantity') }}" required>
                                 </div>
 
                                 <!-- Size -->
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Size</label>
                                     <select id="size" name="size[]" class="form-control border-0 shadow-sm select2" multiple>
-                                        <option value="S">Small</option>
-                                        <option value="M">Medium</option>
-                                        <option value="L">Large</option>
-                                        <option value="XL">X-Large</option>
+                                        <option value="S" {{ collect(old('size'))->contains('S') ? 'selected' : '' }}>Small</option>
+                                        <option value="M" {{ collect(old('size'))->contains('M') ? 'selected' : '' }}>Medium</option>
+                                        <option value="L" {{ collect(old('size'))->contains('L') ? 'selected' : '' }}>Large</option>
+                                        <option value="XL" {{ collect(old('size'))->contains('XL') ? 'selected' : '' }}>X-Large</option>
                                     </select>
                                 </div>
+
 
                                 <!-- Color -->
                                 <div class="col-md-6">
@@ -124,7 +136,7 @@
                                 <!-- Description -->
                                 <div class="col-12">
                                     <label class="form-label fw-bold">Description</label>
-                                    <textarea name="description" class="form-control border-0 shadow-sm" rows="4" placeholder="Write product description..." required></textarea>
+                                    <textarea name="description" class="form-control border-0 shadow-sm" rows="4" placeholder="Write product description..." required>{{ old('description') }}</textarea>
                                 </div>
 
                                 <!-- Image -->
@@ -270,14 +282,16 @@
     <script>
         let colors = [];
 
-        function createPicker() {
+        // Function to create a color picker
+        function createPicker(defaultColor = '#ff0000') {
             const container = document.createElement('div');
+            container.classList.add('mb-2');
             document.getElementById('color-pickers').appendChild(container);
 
             const pickr = Pickr.create({
                 el: container,
                 theme: 'classic',
-                default: '#ff0000',
+                default: defaultColor,
                 components: {
                     preview: true,
                     opacity: true,
@@ -292,17 +306,39 @@
                 }
             });
 
+            // When a color is saved, update hidden input
             pickr.on('save', (color) => {
-                let hex = color.toHEXA().toString();
+                const hex = color.toHEXA().toString();
+
+                // Update or add color
                 if (!colors.includes(hex)) {
                     colors.push(hex);
-                    document.getElementById('colors-hidden').value = JSON.stringify(colors);
+                } else {
+                    const index = colors.indexOf(hex);
+                    colors[index] = hex;
                 }
+
+                document.getElementById('colors-hidden').value = JSON.stringify(colors);
             });
+
+            // Immediately save the default color
+            colors.push(defaultColor);
+            document.getElementById('colors-hidden').value = JSON.stringify(colors);
         }
 
-        document.getElementById('add-color').addEventListener('click', createPicker);
+        // Add new color picker when button clicked
+        document.getElementById('add-color').addEventListener('click', () => createPicker());
+
+        // ✅ Restore previously selected colors after validation error
+        document.addEventListener('DOMContentLoaded', function() {
+            const oldColors = @json(old('color')) || [];
+
+            if (Array.isArray(oldColors) && oldColors.length > 0) {
+                oldColors.forEach(color => createPicker(color));
+            }
+        });
     </script>
+
 
 </body>
 

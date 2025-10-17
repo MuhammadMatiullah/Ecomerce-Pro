@@ -30,22 +30,27 @@ class ProductController extends Controller
 }
 public function store(Request $request)
 {
-    // dd($request);
     $request->validate([
         'name' => 'required|string|max:255',
         'slug' => 'required|string|max:255|unique:products,slug',
-        'categories' => 'required|array',      // ✅ multiple categories
+        'categories' => 'required|array',
         'categories.*' => 'exists:categories,id',
-        'subcategories' => 'required|array',   // ✅ multiple subcategories
+        'subcategories' => 'required|array',
         'subcategories.*' => 'exists:sub_categories,id',
-        'price' => 'required|numeric',
-        'discount' => 'nullable|numeric',
+        'price' => 'required|numeric|min:1', // ✅ price must be > 0
+        'discount' => 'nullable|numeric|min:0',
         'quantity' => 'required|integer',
         'description' => 'required|string',
         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
     ]);
 
-    // ✅ Create product
+    // ✅ Additional manual check for discount logic
+    if ($request->discount && ($request->price - $request->discount) <= 0) {
+        return back()
+            ->withErrors(['discount' => 'Discount cannot make the final price zero or negative.'])
+            ->withInput();
+    }
+
     $product = new Product();
     $product->name = $request->name;
     $product->slug = $request->slug;
@@ -57,7 +62,6 @@ public function store(Request $request)
     $product->description = $request->description;
     $product->status = $request->has('status') ? 1 : 0;
 
-    // ✅ Handle image upload
     if ($request->hasFile('image')) {
         $filename = time() . '.' . $request->image->extension();
         $request->image->move(public_path('uploads/products'), $filename);
@@ -66,15 +70,12 @@ public function store(Request $request)
 
     $product->save();
 
-    // ✅ Attach categories & subcategories to pivot tables
     $product->categories()->attach($request->categories);
     $product->subcategories()->attach($request->subcategories);
 
-    // dd($product->subcategories()->pluck('id'));
-
-
     return redirect()->route('admin.product.index')->with('success', 'Product added successfully!');
 }
+
 
 
  public function checkSlug(Request $request)
@@ -120,15 +121,21 @@ public function update(Request $request, $id)
         'categories.*' => 'exists:categories,id',
         'subcategories' => 'required|array',
         'subcategories.*' => 'exists:sub_categories,id',
-        'price' => 'required|numeric',
-        'discount' => 'nullable|numeric',
+        'price' => 'required|numeric|min:1', // ✅ price must be > 0
+        'discount' => 'nullable|numeric|min:0',
         'quantity' => 'required|integer',
         'description' => 'required|string',
         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
     ]);
 
-    $product = Product::findOrFail($id);
+    // ✅ Discount validation check
+    if ($request->discount && ($request->price - $request->discount) <= 0) {
+        return back()
+            ->withErrors(['discount' => 'Discount cannot make the final price zero or negative.'])
+            ->withInput();
+    }
 
+    $product = Product::findOrFail($id);
     $product->name = $request->name;
     $product->slug = $request->slug;
     $product->price = $request->price;
@@ -147,12 +154,12 @@ public function update(Request $request, $id)
 
     $product->save();
 
-    // ✅ Update pivot tables
     $product->categories()->sync($request->categories);
     $product->subcategories()->sync($request->subcategories);
 
     return redirect()->route('admin.product.index')->with('success', 'Product updated successfully!');
 }
+
 
 
 public function destroy($id)

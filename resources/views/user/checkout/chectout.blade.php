@@ -372,11 +372,17 @@
                         <div class="col-md-8">
                           <p>Please select the preferred payment method to use on this order.</p>
 
-                          <div class="radio-list mb-3">
-                            <label>
-                              <input type="radio" name="payment_method" value="CashOnDelivery" checked> Cash On Delivery
-                            </label>
+                          <div class="payment-methods mt-4">
+                            <h5>Select Payment Method:</h5>
+                            <div>
+                              <input type="radio" name="payment_method" value="cod" checked> Cash on Delivery
+                            </div>
+                            <div>
+                              <input type="radio" name="payment_method" value="online"> Pay Online
+                            </div>
                           </div>
+
+                         
 
                           <div class="form-group mb-3">
                             <label for="delivery-payment-method">Add Comments About Your Order</label>
@@ -418,7 +424,9 @@
                       <!-- BUTTONS -->
                       <div class="clearfix mt-4">
                         <button class="btn btn-primary pull-right" type="submit" id="button-confirm">Confirm Order</button>
-                        <button type="button" class="btn btn-default pull-right margin-right-20">Cancel</button>
+                        <button type="button" class="btn btn-default pull-right margin-right-20" id="cancelCheckoutBtn">Cancel</button>
+
+
                       </div>
                     </form>
                     <!-- END FORM -->
@@ -450,6 +458,8 @@
   @include('user.footer')
 
   @include('user.js')
+
+  <!-- SweetAlert2 -->
 
 
   <script>
@@ -612,6 +622,62 @@
       }
     });
   </script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <script>
+    document.getElementById('cancelCheckoutBtn').addEventListener('click', function() {
+      Swal.fire({
+        title: "Cancel Checkout?",
+        text: "Are you sure you want to cancel and clear your checkout data?",
+        icon: "warning",
+        showCancelButton: true,
+        showCloseButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, cancel it!",
+        cancelButtonText: "No, stay here"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          fetch("{{ route('checkout.clear') }}", {
+              method: "DELETE",
+              headers: {
+                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                "Accept": "application/json"
+              }
+            })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                Swal.fire({
+                  title: "Cancelled!",
+                  text: data.message,
+                  icon: "success"
+                }).then(() => {
+                  // ✅ Redirect user to home after clearing
+                  window.location.href = "{{ url('/') }}";
+                });
+              } else {
+                Swal.fire("Error", data.message, "error");
+              }
+            })
+            .catch(() => Swal.fire("Error", "Failed to clear checkout.", "error"));
+        }
+      });
+    });
+  </script>
+
+<script>
+document.getElementById('placeOrderBtn').addEventListener('click', function() {
+  let method = document.querySelector('input[name="payment_method"]:checked').value;
+  if (method === 'online') {
+    window.location.href = "{{ route('payment.index') }}"; // go to payment page
+  } else {
+    document.querySelector('form#checkoutForm').submit(); // your existing COD submit form
+  }
+});
+</script>
+
 
 </body>
 <!-- END BODY -->

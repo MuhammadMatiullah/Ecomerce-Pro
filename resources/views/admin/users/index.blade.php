@@ -90,24 +90,15 @@
                           {{ $user->created_at->format('M d Y') }}
                         </span>
                       </td>
-                     <td class="align-middle text-center">
-  <a href="{{ route('admin.users.edit', $user->id) }}" 
-     class="text-secondary font-weight-bold text-xs" 
-     data-toggle="tooltip" 
-     data-original-title="Edit user">
-    Edit
-  </a>
+                      <td class="align-middle text-center">
+                        <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-warning btn-sm" data-toggle="tooltip" data-original-title="Edit user">Edit</a>
 
-  <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display:inline-block;">
-    @csrf
-    @method('DELETE')
-    <button type="submit" 
-            class="btn btn-link text-danger font-weight-bold text-xs p-0 m-0 align-baseline ms-2"
-            onclick="return confirm('Are you sure you want to delete this user?')">
-      Delete
-    </button>
-  </form>
-</td>
+                        <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display:inline-block;">
+                          @csrf
+                          @method('DELETE')
+                          <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this user?')"> Delete</button>
+                        </form>
+                      </td>
 
 
 

@@ -15,6 +15,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderController;
+use app\Http\Controllers\PaymentController;
 
 Route::view('/', 'welcome');
 
@@ -159,6 +160,10 @@ Route::middleware(['auth'])->group(function () {
   Route::post('/cart/add/{product}', [CartController::class, 'store'])->name('cart.store');
   Route::delete('/cart/remove/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
   Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
+  Route::post('/cart/proceed-to-checkout', [App\Http\Controllers\CartController::class, 'proceedToCheckout'])
+    ->name('cart.proceedToCheckout');
+
+
   //Address
   Route::post('/billing-address', [AddressController::class, 'storeBilling'])->name('billing.store');
   Route::post('/delivery-address', [AddressController::class, 'storeDelivery'])->name('delivery.store');
@@ -167,7 +172,20 @@ Route::middleware(['auth'])->group(function () {
   // routes/web.php
   Route::post('/checkout/save-addresses', [CheckoutController::class, 'saveAddresses'])->name('checkout.saveAddresses');
   Route::get('/checkout/get-delivery', [CheckoutController::class, 'getDeliveryAddress'])->name('checkout.getDeliveryAddress');
+  //cencel
+  Route::delete('/checkout/clear', [CheckoutController::class, 'clear'])->name('checkout.clear');
 
   // order
   Route::post('/order/store', [OrderController::class, 'store'])->name('order.store');
+  Route::post('/checkout', [OrderController::class, 'store'])->name('checkout.store');
+
+
+
+// Online Payment (Demo)
+Route::get('/payment', [PaymentController::class, 'index'])->name('payment.index');
+Route::post('/payment/process', [PaymentController::class, 'process'])->name('payment.process');
+
+
+
+
 });

@@ -39,6 +39,16 @@
                                 <h6 class="text-white text-capitalize ps-3">Edit Product</h6>
                             </div>
                             <div class="container mt-5">
+                                   @if ($errors->any())
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">X</button>
+                        </div>
+                        @endif
                                 <form action="{{ route('admin.product.update', $product->id) }}" method="POST" enctype="multipart/form-data">
                                     @csrf
 

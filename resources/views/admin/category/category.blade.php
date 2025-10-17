@@ -31,7 +31,7 @@
 
         <div class="container-fluid py-2">
             <div class="d-flex justify-content-end mb-3 mt-4">
-                <a href="{{ route('category.create')}}" class="btn btn-success btn-sm me-3">
+                <a href="{{ route('admin.category.create')}}" class="btn btn-success btn-sm me-3">
                     <i class="fas fa-plus me-1"></i> Add Category
                 </a>
             </div>
@@ -84,14 +84,14 @@
 
                                             </td>
                                             <td class="align-middle text-center">
-                                                <a href="{{ route('category.edit', $category->id) }}" class="text-warning font-weight-bold text-xs me-2">Edit</a>
-                                                <form action="{{ route('category.destroy', $category->id) }}"
+                                                <a href="{{ route('admin.category.edit', $category->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                                                <form action="{{ route('admin.category.destroy', $category->id) }}"
                                                     method="POST"
                                                     style="display:inline-block;"
                                                     onsubmit="return confirm('Are you sure you want to delete this category?');">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-link text-danger font-weight-bold text-xs p-0 m-0 border-0 bg-transparent">
+                                                    <button type="submit" class="btn btn-danger btn-sm">
                                                         Delete
                                                     </button>
                                                 </form>

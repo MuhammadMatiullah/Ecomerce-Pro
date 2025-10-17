@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="{{asset('assets/admin1/assets/img/apple-icon.png')}}">
     <link rel="icon" type="image/png" href="{{asset('assets/admin1/assets/img/favicon.png')}}">
-    
+
     <title>
         Product
     </title>
@@ -73,17 +73,17 @@
                                             <td>{{ $product->name }}</td>
                                             <td>{{ Str::limit($product->description, 50) }}</td>
                                             <td>{{ $product->slug }}</td>
-                                          <td>
-    {{ $product->categories->pluck('name')->join(', ') ?: 'N/A' }}
-</td>
-<td>
-    {{ $product->subcategories->pluck('name')->join(', ') ?: 'N/A' }}
-</td>
+                                            <td>
+                                                {{ $product->categories->pluck('name')->join(', ') ?: 'N/A' }}
+                                            </td>
+                                            <td>
+                                                {{ $product->subcategories->pluck('name')->join(', ') ?: 'N/A' }}
+                                            </td>
                                             <td>{{ $product->price }}</td>
                                             <td>{{ $product->discount ?? '-' }}</td>
                                             <td>{{ $product->quantity }}</td>
                                             <td>{{ $product->size ? implode(', ', json_decode($product->size)) : '-' }}</td>
-    <td>{{ $product->color ? implode(', ', (array) json_decode($product->color)) : '-' }}</td>
+                                            <td>{{ $product->color ? implode(', ', (array) json_decode($product->color)) : '-' }}</td>
                                             <td>
                                                 @if($product->image)
                                                 <img src="{{ asset('/uploads/products/'.$product->image) }}" width="50" height="50" class="rounded">

@@ -40,76 +40,79 @@
           <h1>Shopping cart</h1>
           <div class="goods-page">
             <div class="goods-data clearfix">
+              <form id="checkoutForm" action="{{ route('cart.proceedToCheckout') }}" method="POST">
+                @csrf
+                <div class="table-wrapper-responsive">
+                  <table summary="Shopping cart">
+                    <tr>
+                      <th class="goods-page-image">Image</th>
+                      <th class="goods-page-description">Description</th>
+                      <th class="goods-page-ref-no">Ref No</th>
+                      <th class="goods-page-quantity">Quantity</th>
+                      <th class="goods-page-price">Unit price</th>
+                      <th class="goods-page-total" colspan="2">Total</th>
+                    </tr>
 
-              <div class="table-wrapper-responsive">
-                <table summary="Shopping cart">
-                  <tr>
-                    <th class="goods-page-image">Image</th>
-                    <th class="goods-page-description">Description</th>
-                    <th class="goods-page-ref-no">Ref No</th>
-                    <th class="goods-page-quantity">Quantity</th>
-                    <th class="goods-page-price">Unit price</th>
-                    <th class="goods-page-total" colspan="2">Total</th>
-                  </tr>
-                  @foreach($cartItems as $caritem)
-                  <tr>
-                    <td class="goods-page-image">
-                      <a href="javascript:;"><img src="{{ asset('uploads/products/' . $caritem->product->image) }}" alt="Berry Lace Dress"></a>
-                    </td>
-                    <td class="goods-page-description">
-                      <h3><a href="javascript:;">{{$caritem->product->name}}</a></h3>
-                      <p>{{$caritem->product->description}}</p>
+                    @foreach($cartItems as $caritem)
 
-                    </td>
-                    <td class="goods-page-ref-no">
-                      {{$caritem->product->slug}}
-                    </td>
-                    <!-- Quantity input -->
-                    <td class="goods-page-quantity">
-                      <div class="product-quantity">
-                        <input type="number"
-                          value="{{ $caritem->quantity }}"
-                          min="1"
-                          class="form-control input-sm qty-input"
-                          data-price="{{ $caritem->product->price }}">
-                      </div>
-                    </td>
-                    <td class="goods-page-price">
-                      <strong><span>$</span>{{$caritem->product->price}}</strong>
-                    </td>
-                    <td class="goods-page-total">
-                      <strong><span>$</span><span class="row-total">{{ $caritem->product->price * $caritem->quantity }}</span></strong>
-                    </td>
-                    <td class="del-goods-col">
-                      <a class="del-goods" href="javascript:;" data-id="{{ $caritem->id }}">&nbsp;</a>
-                    </td>
+                    <tr>
+                      <td class="goods-page-image">
+                        <a href="javascript:;"><img src="{{ asset('uploads/products/' . $caritem->product->image) }}" alt="Berry Lace Dress"></a>
+                      </td>
+                      <td class="goods-page-description">
+                        <h3><a href="javascript:;">{{$caritem->product->name}}</a></h3>
+                        <p>{{$caritem->product->description}}</p>
 
-                  </tr>
-                  @endforeach
+                      </td>
+                      <td class="goods-page-ref-no">
+                        {{$caritem->product->slug}}
+                      </td>
+                      <!-- Quantity input -->
+                      <td class="goods-page-quantity">
+                        <div class="product-quantity">
+                          <input type="number"
+                            value="{{ $caritem->quantity }}"
+                            min="1"
+                            class="form-control input-sm qty-input"
+                            data-price="{{ $caritem->product->price }}">
+                        </div>
+                      </td>
+                      <td class="goods-page-price">
+                        <strong><span>$</span>{{$caritem->product->price}}</strong>
+                      </td>
+                      <td class="goods-page-total">
+                        <strong><span>$</span><span class="row-total">{{ $caritem->product->price * $caritem->quantity }}</span></strong>
+                      </td>
+                      <td class="del-goods-col">
+                        <a class="del-goods" href="javascript:;" data-id="{{ $caritem->id }}">&nbsp;</a>
+                      </td>
 
-                </table>
-              </div>
+                    </tr>
+                    @endforeach
 
-              <div class="shopping-total">
-                <ul>
-                  <li>
-                    <em>Sub total</em>
-                    <strong class="price"><span>$</span><span id="sub-total">
-                        {{ $cartItems->sum(fn($item) => $item->product->price * $item->quantity) }}
-                      </span></strong>
-                  </li>
-                  <li>
-                    <em>Shipping cost</em>
-                    <strong class="price"><span>$</span><span id="shipping-cost">3.00</span></strong>
-                  </li>
-                  <li class="shopping-total-price">
-                    <em>Total</em>
-                    <strong class="price"><span>$</span><span id="grand-total">
-                        {{ $cartItems->sum(fn($item) => $item->product->price * $item->quantity) + 3 }}
-                      </span></strong>
-                  </li>
-                </ul>
-              </div>
+                  </table>
+                </div>
+
+                <div class="shopping-total">
+                  <ul>
+                    <li>
+                      <em>Sub total</em>
+                      <strong class="price"><span>$</span><span id="sub-total">
+                          {{ $cartItems->sum(fn($item) => $item->product->price * $item->quantity) }}
+                        </span></strong>
+                    </li>
+                    <li>
+                      <em>Shipping cost</em>
+                      <strong class="price"><span>$</span><span id="shipping-cost">3.00</span></strong>
+                    </li>
+                    <li class="shopping-total-price">
+                      <em>Total</em>
+                      <strong class="price"><span>$</span><span id="grand-total">
+                          {{ $cartItems->sum(fn($item) => $item->product->price * $item->quantity) + 3 }}
+                        </span></strong>
+                    </li>
+                  </ul>
+                </div>
 
 
 
@@ -119,7 +122,12 @@
               Continue shopping <i class="fa fa-shopping-cart"></i>
             </a>
 
-            <button class="btn btn-primary" type="submit">Checkout <i class="fa fa-check"></i></button>
+
+            <button type="submit" class="btn btn-primary">
+              Checkout <i class="fa fa-check"></i>
+            </button>
+            </form>
+
           </div>
         </div>
         <!-- END CONTENT -->
@@ -324,7 +332,9 @@
   <script>
     $(document).ready(function() {
 
-      // ✅ Quantity change (works with input, keyup, or TouchSpin events)
+      /* ===========================
+         ✅ 1. Update Quantity Live
+      ============================*/
       $(document).on('change keyup input', '.qty-input', function() {
         let qty = parseInt($(this).val());
         let price = parseFloat($(this).data('price')); // unit price
@@ -342,7 +352,9 @@
         updateTotals();
       });
 
-      // ✅ Delete item with SweetAlert + AJAX
+      /* ===========================
+         ✅ 2. Delete Item (AJAX)
+      ============================*/
       $(document).on('click', '.del-goods', function(e) {
         e.preventDefault();
         let row = $(this).closest('tr');
@@ -379,7 +391,9 @@
         });
       });
 
-      // ✅ Function to update subtotal + grand total
+      /* ===========================
+         ✅ 3. Update Totals
+      ============================*/
       function updateTotals() {
         let subTotal = 0;
 
@@ -400,8 +414,39 @@
         $('#grand-total').text(grandTotal.toFixed(2));
       }
 
+      /* ===========================
+         ✅ 4. Checkout Form Submit
+         - Attach latest quantities
+      ============================*/
+     $('#checkoutForm').on('submit', function(e) {
+  e.preventDefault();
+
+  $(this).find('input[name^="cart_items"]').remove();
+
+  $('.qty-input').each(function() {
+    let cartId = $(this).closest('tr').find('.del-goods').data('id');
+    let qty = $(this).val();
+
+    $('<input>', {
+      type: 'hidden',
+      name: 'cart_items[][id]',
+      value: cartId
+    }).appendTo('#checkoutForm');
+
+    $('<input>', {
+      type: 'hidden',
+      name: 'cart_items[][quantity]',
+      value: qty
+    }).appendTo('#checkoutForm');
+  });
+
+  this.submit(); // submit after attaching hidden fields
+});
+
+
     });
   </script>
+
 </body>
 <!-- END BODY -->
 

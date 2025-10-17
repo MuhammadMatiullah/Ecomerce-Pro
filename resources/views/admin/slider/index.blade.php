@@ -80,7 +80,7 @@
                                             </td>
                                             <td class="align-middle text-center">
                                                 <a href="{{ route('admin.sliders.edit', $slider->id) }}"
-                                                    class="text-warning font-weight-bold text-xs me-2">
+                                                    class="btn btn-warning btn-sm">
                                                     Edit
                                                 </a>
 
@@ -91,7 +91,7 @@
                                                     onsubmit="return confirm('Are you sure you want to delete this slider?');">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-link text-danger font-weight-bold text-xs p-0 m-0 border-0 bg-transparent">
+                                                    <button type="submit" class="btn btn-danger btn-sm">
                                                         Delete
                                                     </button>
                                                 </form>

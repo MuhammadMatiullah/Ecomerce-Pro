@@ -23,6 +23,7 @@ class CartController extends Controller
     // Add to cart
     public function store($productId)
     {
+        
         $cartItem = Cart::where('user_id', Auth::id())
             ->where('product_id', $productId)
             ->first();
@@ -59,4 +60,28 @@ class CartController extends Controller
 
         return response()->json(['success' => true]);
     }
+    public function proceedToCheckout(Request $request)
+{
+    $user = Auth::user();
+
+    if (!$user) {
+        return redirect()->route('login')->with('error', 'Please login first.');
+    }
+
+    if ($request->has('cart_items')) {
+        foreach ($request->cart_items as $item) {
+            if (isset($item['id']) && isset($item['quantity'])) {
+                Cart::where('id', $item['id'])
+                    ->where('user_id', $user->id)
+                    ->update([
+                        'quantity' => $item['quantity'],
+                    ]);
+            }
+        }
+    }
+
+    // ✅ Redirect to checkout page after syncing
+    return redirect()->route('checkout')->with('success', 'Cart updated! Proceed to checkout.');
+}
+
 }
