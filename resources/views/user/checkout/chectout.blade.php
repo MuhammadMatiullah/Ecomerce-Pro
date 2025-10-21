@@ -382,7 +382,7 @@
                             </div>
                           </div>
 
-                         
+
 
                           <div class="form-group mb-3">
                             <label for="delivery-payment-method">Add Comments About Your Order</label>
@@ -622,9 +622,9 @@
       }
     });
   </script>
-  
+
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  
+
   <script>
     document.getElementById('cancelCheckoutBtn').addEventListener('click', function() {
       Swal.fire({
@@ -668,13 +668,26 @@
   </script>
 
 <script>
-document.getElementById('placeOrderBtn').addEventListener('click', function() {
-  let method = document.querySelector('input[name="payment_method"]:checked').value;
-  if (method === 'online') {
-    window.location.href = "{{ route('payment.index') }}"; // go to payment page
-  } else {
-    document.querySelector('form#checkoutForm').submit(); // your existing COD submit form
-  }
+document.addEventListener("DOMContentLoaded", function() {
+  const confirmBtn = document.getElementById("button-confirm");
+  const form = document.getElementById("orderForm");
+
+  confirmBtn.addEventListener("click", function(e) {
+    const selected = document.querySelector('input[name="payment_method"]:checked');
+
+    if (!selected) {
+      e.preventDefault();
+      alert("⚠️ Please select a payment method before confirming your order.");
+      return;
+    }
+
+    if (selected.value === "online") {
+      e.preventDefault(); // stop normal form submit
+      // Redirect user to payment page
+      window.location.href = "{{ route('payment.index') }}";
+    }
+    // else, if it's COD, do nothing — form will submit normally
+  });
 });
 </script>
 

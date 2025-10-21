@@ -6,46 +6,72 @@
     <div class="col-md-6">
       <div class="card shadow-lg border-0 rounded-3">
         <div class="card-header bg-primary text-white text-center">
-          <h4>Online Payment</h4>
+          <h4>Stripe Payment</h4>
         </div>
         <div class="card-body">
-          @if(session('error'))
-            <div class="alert alert-danger">{{ session('error') }}</div>
+          @if(session('success'))
+          <div class="alert alert-success">{{ session('success') }}</div>
           @endif
-          <form method="POST" action="{{ route('payment.process') }}">
-            @csrf
+          @if(session('error'))
+          <div class="alert alert-danger">{{ session('error') }}</div>
+          @endif
 
+          <form id="payment-form" method="POST" action="{{ route('payment.process') }}">
+            @csrf
             <div class="mb-3">
               <label class="form-label">Card Holder Name</label>
-              <input type="text" name="card_holder" class="form-control" required>
+              <input type="text" name="card_holder" id="card-holder-name" class="form-control" required>
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Card Number</label>
-              <input type="text" name="card_number" maxlength="16" class="form-control" required>
+              <label class="form-label">Card Details</label>
+              <div id="card-element" class="form-control p-3"></div>
             </div>
 
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Expiry Date</label>
-                <input type="month" name="expiry" class="form-control" required>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">CVV</label>
-                <input type="text" name="cvv" maxlength="4" class="form-control" required>
-              </div>
-            </div>
+            <input type="hidden" name="stripeToken" id="stripeToken">
 
             <div class="mb-3">
-              <label class="form-label">Amount</label>
-              <input type="number" name="amount" class="form-control" value="1000" readonly>
+              <label class="form-label">Amount (USD)</label>
+              <input type="number" name="amount" value="{{ $total }}" class="form-control" readonly>
             </div>
 
-            <button type="submit" class="btn btn-success w-100">Pay Now</button>
+
+            <button id="card-button" class="btn btn-success w-100">Pay Now</button>
           </form>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+  const stripe = Stripe("{{ config('services.stripe.key') }}");
+  const elements = stripe.elements();
+  const card = elements.create('card');
+  card.mount('#card-element');
+
+  const form = document.getElementById('payment-form');
+  const cardHolderName = document.getElementById('card-holder-name');
+  const stripeTokenInput = document.getElementById('stripeToken');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const {
+      token,
+      error
+    } = await stripe.createToken(card, {
+      name: cardHolderName.value
+    });
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    stripeTokenInput.value = token.id;
+    form.submit();
+  });
+</script>
 @endsection

@@ -15,7 +15,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderController;
-use app\Http\Controllers\PaymentController;
+use App\Http\Controllers\PaymentController;
 
 Route::view('/', 'welcome');
 
