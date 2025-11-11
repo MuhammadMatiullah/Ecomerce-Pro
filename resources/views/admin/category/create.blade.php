@@ -44,7 +44,7 @@
 
                     </div>
                     <div class="container mt-5">
-                        <form action="{{ route('category.store') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('admin.category.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
 
                             <div class="row g-3">

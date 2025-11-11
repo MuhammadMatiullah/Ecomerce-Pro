@@ -16,8 +16,8 @@ use App\Http\Controllers\AddressController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
-
-Route::view('/', 'welcome');
+use App\Http\Controllers\Admin\AdminOrderController;
+// Route::view('/', 'welcome');
 
 Auth::routes();
 // Admin route (use controller)
@@ -62,20 +62,18 @@ Route::prefix('admin')->name('admin.')->group(function () {});
 
 // Sub-Category routes
 
-Route::prefix('admin')
-  ->name('admin.')
-  ->middleware(['auth:admin']) // 👈 check authentication with admin guard
-  ->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth:admin']) ->group(function () 
+{
     Route::get('subcategory', [SubCategoryController::class, 'index'])->name('subcategory.index');
     // Show create form
     Route::get('subcategory/create', [SubCategoryController::class, 'create'])->name('subcategory.create');
     Route::post('subcategory/store', [SubCategoryController::class, 'store'])->name('subcategory.store');
-    Route::get('/check-slug', [SubcategoryController::class, 'checkSlug'])->name('check.slug');
+    Route::get('/check-slug', [SubCategoryController::class, 'checkSlug'])->name('check.slug');
     // New Edit & Update routes
     Route::get('subcategory/{id}/edit', [SubCategoryController::class, 'edit'])->name('subcategory.edit');
     Route::post('subcategory/{id}/update', [SubCategoryController::class, 'update'])->name('subcategory.update');
     // Delete subcategory
-    Route::delete('admin/subcategory/{id}', [SubCategoryController::class, 'destroy'])->name('subcategory.destroy');
+    Route::delete('subcategory/{id}', [SubCategoryController::class, 'destroy'])->name('subcategory.destroy');
 
 
     Route::get('/category', [CategoryController::class, 'category'])->name('category');
@@ -133,6 +131,10 @@ Route::prefix('admin')
     Route::put('users/{id}', [UserController::class, 'update'])->name('users.update');
     // Delete user
     Route::delete('users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+    //order table
+    Route::get('/order', [AdminOrderController::class, 'index'])->name('order.index');
+    Route::get('/order/details/{userId}', [AdminOrderController::class, 'userDetails'])->name('order.details');
+
   });
 
 //PRODUCT
@@ -181,11 +183,12 @@ Route::middleware(['auth'])->group(function () {
 
 
 
-// Online Payment (Demo)
-Route::get('/payment', [PaymentController::class, 'index'])->name('payment.index');
-Route::post('/payment/process', [PaymentController::class, 'process'])->name('payment.process');
+  // Online Payment (Demo)
+  Route::get('/payment', [PaymentController::class, 'index'])->name('payment.index');
+  Route::post('/payment/process', [PaymentController::class, 'process'])->name('payment.process');
 
 
+  Route::get('/payment/pending', function () {return view('user.payment.pending');})->name('payment.pending');
 
-
+  Route::get('/payment/failed', function () {return view('user.payment.failed');})->name('payment.failed');
 });

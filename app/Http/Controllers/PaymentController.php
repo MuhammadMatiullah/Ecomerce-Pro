@@ -10,38 +10,41 @@ use App\Models\Cart;
 
 class PaymentController extends Controller
 {
-    // ✅ Show payment form
+    /**
+     * ✅ Show payment form
+     */
     public function index()
-{
-    $user = auth()->user();
+    {
+        $user = auth()->user();
 
-    if (!$user) {
-        return redirect()->route('login')->with('error', 'Please login to continue.');
-    }
-
-    $cartItems = \App\Models\Cart::where('user_id', $user->id)->get();
-
-    if ($cartItems->isEmpty()) {
-        return redirect()->route('frontend.index')->with('error', 'Your cart is empty.');
-    }
-
-    // ✅ Calculate subtotal securely
-    $subtotal = 0;
-    foreach ($cartItems as $item) {
-        $product = \App\Models\Product::find($item->product_id);
-        if ($product) {
-            $subtotal += $product->price * ($item->quantity ?? 1);
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Please login to continue.');
         }
+
+        $cartItems = Cart::where('user_id', $user->id)->get();
+
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('frontend.index')->with('error', 'Your cart is empty.');
+        }
+
+        // Calculate subtotal
+        $subtotal = 0;
+        foreach ($cartItems as $item) {
+            $product = Product::find($item->product_id);
+            if ($product) {
+                $subtotal += $product->price * ($item->quantity ?? 1);
+            }
+        }
+
+        $shipping = 3; // Flat rate example
+        $total = $subtotal + $shipping;
+
+        return view('user.payment.index', compact('total'));
     }
 
-    $shipping = 3; // example flat rate
-    $total = $subtotal + $shipping;
-
-    // ✅ Pass total to Blade view
-    return view('user.payment.index', compact('total'));
-}
-
-    // ✅ Process Stripe payment and create order
+    /**
+     * ✅ Process Stripe Payment
+     */
     public function process(Request $request)
     {
         $request->validate([
@@ -51,19 +54,16 @@ class PaymentController extends Controller
         ]);
 
         $user = Auth::user();
-
         if (!$user) {
             return redirect()->route('login')->with('error', 'Please login to continue.');
         }
 
-        // 🧩 Step 1: Get cart items
         $cartItems = Cart::where('user_id', $user->id)->get();
-
         if ($cartItems->isEmpty()) {
             return back()->with('error', 'Your cart is empty.');
         }
 
-        // 🧮 Step 2: Calculate subtotal securely (ignore user-sent prices)
+        // Calculate totals
         $subtotal = 0;
         foreach ($cartItems as $item) {
             $product = Product::find($item->product_id);
@@ -72,55 +72,71 @@ class PaymentController extends Controller
             }
         }
 
-        $shipping = 3; // flat shipping rate example
+        $shipping = 3;
         $total = $subtotal + $shipping;
 
-        // 💳 Step 3: Stripe charge
         \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
 
         try {
             $charge = \Stripe\Charge::create([
-                'amount' => $total * 100, // Stripe expects cents
+                'amount' => $total * 100, // convert to cents
                 'currency' => 'usd',
                 'description' => 'Order Payment by ' . $user->name,
                 'source' => $request->stripeToken,
             ]);
+
             // dd($charge);
             $status = $charge->status;
-            dd($status);
+
             
-            // 🧾 Step 4: Create order
-            $order = $user->orders()->create([
-                'payment_method' => 'stripe',
-                'payment_status' => 'paid',
-                'transaction_id' => $charge->id,
-                'subtotal' => $subtotal,
-                'shipping' => $shipping,
-                'total' => $total,
-                'status' => 'processing',
-            ]);
 
-            // 📦 Step 5: Attach ordered products
-            foreach ($cartItems as $item) {
-                $product = Product::find($item->product_id);
-                if ($product) {
-                    $order->products()->attach($product->id, [
-                        'quantity' => $item->quantity ?? 1,
-                        'price' => $product->price,
-                        'user_id' => $user->id,
-                    ]);
+          
+            /**
+             * ✅ Handle payment status
+             */
+            if ($status === 'succeeded') {
+                // ✅ Payment successful — Create order
+                $order = $user->orders()->create([
+                    'payment_method' => 'stripe',
+                    'payment_status' => 'paid',
+                    'transaction_id' => $charge->id,
+                    'subtotal' => $subtotal,
+                    'shipping' => $shipping,
+                    'total' => $total,
+                    'status' => 'processing',
+                ]);
+
+                // Attach products to order
+                foreach ($cartItems as $item) {
+                    $product = Product::find($item->product_id);
+                    if ($product) {
+                        $order->products()->attach($product->id, [
+                            'quantity' => $item->quantity ?? 1,
+                            'price' => $product->price,
+                            'user_id' => $user->id,
+                        ]);
+                    }
                 }
+
+                // Clear user’s cart
+                Cart::where('user_id', $user->id)->delete();
+
+                return redirect()->route('frontend.index')->with('success', '✅ Payment successful! Your order has been placed.');
+
+            } elseif ($status === 'processing' || $status === 'requires_action' || $status === 'requires_source_action') {
+                // ⏳ Payment pending
+                return redirect()->route('payment.pending')->with('info', '⏳ Your payment is pending and awaiting confirmation.');
+
+            } else {
+                // ❌ Payment declined or failed
+                return redirect()->route('payment.failed')->with('error', '❌ Your payment was declined. Please try again.');
             }
+        } 
+        catch (\Stripe\Exception\CardException $e) {
+            // dd($e);
+            // ❌ Specific card decline
+            return redirect()->route('payment.failed')->with('error', 'Card declined: ' . $e->getError()->message);
 
-            // 🧹 Step 6: Clear the cart
-            Cart::where('user_id', $user->id)->delete();
-
-            // ✅ Step 7: Success response
-            return redirect()->route('frontend.index')->with('success', 'Payment successful! Order placed.');
-
-        } catch (\Exception $e) {
-            // ❌ Handle Stripe or DB errors
-            return back()->with('error', $e->getMessage());
-        }
+        } 
     }
 }

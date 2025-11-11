@@ -378,7 +378,10 @@
                               <input type="radio" name="payment_method" value="cod" checked> Cash on Delivery
                             </div>
                             <div>
-                              <input type="radio" name="payment_method" value="online"> Pay Online
+                              <input type="radio" name="payment_method" value="online"> Stripe
+                            </div>
+                            <div>
+                              <input type="radio" name="payment_method" value=""> PayPal
                             </div>
                           </div>
 

@@ -36,7 +36,7 @@
 
         <a class="nav-link {{ Request::is('admin/sliders*') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
           href="{{ route('admin.sliders.index') }}">
-          <i class="material-symbols-rounded opacity-5">inventory</i>
+          <i class="material-symbols-rounded opacity-5">photo_library</i>
           <span class="nav-link-text ms-1">Slider</span>
         </a>
 
@@ -44,6 +44,12 @@
           href="{{ route('admin.product.index') }}">
           <i class="material-symbols-rounded opacity-5">inventory</i>
           <span class="nav-link-text ms-1">Product</span>
+        </a>
+
+        <a class="nav-link {{ Request::is('admin/order*') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
+          href="{{ route('admin.order.index') }}">
+          <i class="material-symbols-rounded opacity-5">shopping_bag</i>
+          <span class="nav-link-text ms-1">Order Table</span>
         </a>
 
 

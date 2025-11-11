@@ -93,6 +93,6 @@ public function destroy($id)
     // delete category
     $category->delete();
 
-    return redirect()->route('category')->with('success', 'Category deleted successfully!');
+    return redirect()->route('admin.category')->with('success', 'Category deleted successfully!');
 }
 }
