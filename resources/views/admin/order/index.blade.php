@@ -4,22 +4,34 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Order</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     @include('admin.css')
 </head>
 <style>
-.modal-xl {
-  max-width: 97% !important; 
+    .modal-xl {
+        max-width: 97% !important;
+    }
+
+    .table td {
+        white-space: normal !important;
+        /* allow text to wrap */
+        word-wrap: break-word;
+        /* break long words */
+        max-width: 250px;
+        /* prevent extra-wide cells */
+        vertical-align: middle;
+        /* center vertically */
+    }
+
+    #changeStatusModal .btn {
+  min-width: 110px;
+  border-radius: 10px;
 }
 
-.table td {
-  white-space: normal !important; /* allow text to wrap */
-  word-wrap: break-word;          /* break long words */
-  max-width: 250px;               /* prevent extra-wide cells */
-  vertical-align: middle;         /* center vertically */
-}
 </style>
+
 <body class="g-sidenav-show bg-gray-100">
     @include('admin.sidebar')
 
@@ -63,41 +75,52 @@
 
                                     <tbody>
                                         @php
-                                            $groupedOrders = $orders->groupBy('user_id');
+                                        $groupedOrders = $orders->groupBy('user_id');
                                         @endphp
 
                                         @foreach($groupedOrders as $userId => $userOrders)
-                                            @php
-                                                $user = $userOrders->first()->user;
-                                                $totalAmount = $userOrders->sum('total');
-                                                $latestStatus = $userOrders->last()->status ?? 'N/A';
-                                            @endphp
+                                        @php
+                                        $user = $userOrders->first()->user;
+                                        $totalAmount = $userOrders->sum('total');
+                                        $latestStatus = $userOrders->last()->status ?? 'N/A';
+                                        @endphp
 
-                                            <tr>
-                                                <td><h6 class="mb-0 ms-4 text-sm">{{ $user->name ?? 'N/A' }}</h6></td>
-                                                <td><p class="text-xs ms-4  text-secondary mb-0">{{ $userId }}</p></td>
-                                                <td><span class="badge ms-4  bg-gradient-info">{{ $userOrders->count() }}</span></td>
-                                                <td><span class="badge ms-2  bg-gradient-success">Rs. {{ number_format($totalAmount, 2) }}</span></td>
+                                        <tr>
+                                            <td>
+                                                <h6 class="mb-0 ms-4 text-sm">{{ $user->name ?? 'N/A' }}</h6>
+                                            </td>
+                                            <td>
+                                                <p class="text-xs ms-4  text-secondary mb-0">{{ $userId }}</p>
+                                            </td>
+                                            <td><span class="badge ms-4  bg-gradient-info">{{ $userOrders->count() }}</span></td>
+                                            <td><span class="badge ms-2  bg-gradient-success">Rs. {{ number_format($totalAmount, 2) }}</span></td>
 
-                                                <td>
-                                                    @if($latestStatus === 'pending')
-                                                        <span class="badge ms-4  bg-gradient-warning">Pending</span>
-                                                    @elseif($latestStatus === 'confirmed')
-                                                        <span class="badge ms-4  bg-gradient-info">Confirmed</span>
-                                                    @elseif($latestStatus === 'shipped')
-                                                        <span class="badge ms-4  bg-gradient-success">Shipped</span>
-                                                    @else
-                                                        <span class="badge ms-4  bg-gradient-secondary">{{ ucfirst($latestStatus) }}</span>
-                                                    @endif
-                                                </td>
+                                            <td>
+                                                @if($latestStatus === 'pending')
+                                                <span class="badge ms-4  bg-gradient-warning">Pending</span>
+                                                @elseif($latestStatus === 'confirmed')
+                                                <span class="badge ms-4  bg-gradient-info">Confirmed</span>
+                                                @elseif($latestStatus === 'shipped')
+                                                <span class="badge ms-4  bg-gradient-success">Shipped</span>
+                                                @else
+                                                <span class="badge ms-4  bg-gradient-secondary">{{ ucfirst($latestStatus) }}</span>
+                                                @endif
+                                            </td>
 
-                                                <td class="text-center">
-                                                    <button class="btn btn-sm btn-dark view-details-btn mt-3" 
-                                                        data-user-id="{{ $userId }}">
-                                                        View Details
-                                                    </button>
-                                                </td>
-                                            </tr>
+                                            <td class="text-center">
+                                                <button class="btn btn-sm btn-dark view-details-btn mt-3"
+                                                    data-user-id="{{ $userId }}">
+                                                    View Details
+                                                </button>
+                                                <button
+                                                    class="btn btn-sm btn-dark change-status-btn mt-3"
+                                                    data-order-id="{{ $userOrders->last()->id }}"
+                                                    data-user-name="{{ $user->name ?? 'N/A' }}">
+                                                    Change Status
+                                                </button>
+                                            </td>
+
+                                        </tr>
                                         @endforeach
                                     </tbody>
                                 </table>
@@ -116,115 +139,244 @@
 
     <!-- ✅ Reusable Modal -->
     <div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header d-flex align-items-center justify-content-between" style="padding: 1rem 1.5rem;">
-    <h5 class="modal-title mb-0">Order Details</h5>
-    <button type="button" class="btn p-0" data-bs-dismiss="modal" aria-label="Close"
-        style="border:none; background:none; font-size:24px; line-height:1;">
-        <i class="bi bi-x-lg"></i>
-    </button>
-</div>
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header d-flex align-items-center justify-content-between" style="padding: 1rem 1.5rem;">
+                    <h5 class="modal-title mb-0">Order Details</h5>
+                    <button type="button" class="btn p-0" data-bs-dismiss="modal" aria-label="Close"
+                        style="border:none; background:none; font-size:24px; line-height:1;">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
 
-          <div class="modal-body" id="detailsModalBody">
-            <p class="text-center">Loading...</p>
-          </div>
+                <div class="modal-body" id="detailsModalBody">
+                    <p class="text-center">Loading...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Model for comment -->
+    <div class="modal fade" id="commentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Full Comment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="commentModalBody"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Description Modal -->
+    <div class="modal fade" id="descriptionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Full Description</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="descriptionModalBody"></div>
+            </div>
+        </div>
+    </div>
+    <!-- Description Model Script -->
+
+<!-- ✅ Change Status Modal -->
+<div class="modal fade" id="changeStatusModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">Change Order Status</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <p id="orderInfo" class="text-secondary mb-4"></p>
+        <div class="d-flex justify-content-center gap-3">
+          <button class="btn btn-success" id="confirmOrderBtn">
+            <i class="bi bi-check-circle me-1"></i> Confirm
+          </button>
+          <button class="btn btn-primary" id="dispatchOrderBtn">
+            <i class="bi bi-truck me-1"></i> Dispatch
+          </button>
+          <button class="btn btn-danger" id="cancelOrderBtn">
+            <i class="bi bi-x-circle me-1"></i> Cancel
+          </button>
         </div>
       </div>
     </div>
-
-
-<!-- Model for comment -->
-<div class="modal fade" id="commentModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Full Comment</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body" id="commentModalBody"></div>
-    </div>
   </div>
 </div>
 
-<!-- Description Modal -->
-<div class="modal fade" id="descriptionModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Full Description</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body" id="descriptionModalBody"></div>
-    </div>
-  </div>
-</div>
-<!-- Description Model Script -->
-<script>
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('view-description-btn')) {
-        const description = e.target.dataset.description;
-        document.getElementById('descriptionModalBody').textContent = description;
-        const modal = new bootstrap.Modal(document.getElementById('descriptionModal'));
-        modal.show();
-    }
-});
-</script>
-<!-- comment model script -->
-<script>
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('view-comment-btn')) {
-        const comment = e.target.dataset.comment;
-        document.getElementById('commentModalBody').textContent = comment;
-        const modal = new bootstrap.Modal(document.getElementById('commentModal'));
-        modal.show();
-    }
-});
-</script>
+
+<!-- description model script -->
+    <script>
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('view-description-btn')) {
+                const description = e.target.dataset.description;
+                document.getElementById('descriptionModalBody').textContent = description;
+                const modal = new bootstrap.Modal(document.getElementById('descriptionModal'));
+                modal.show();
+            }
+        });
+    </script>
+    <!-- comment model script -->
+    <script>
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('view-comment-btn')) {
+                const comment = e.target.dataset.comment;
+                document.getElementById('commentModalBody').textContent = comment;
+                const modal = new bootstrap.Modal(document.getElementById('commentModal'));
+                modal.show();
+            }
+        });
+    </script>
 
 
 
     <!-- ✅ JavaScript for Dynamic Loading -->
-     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.view-details-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const userId = this.dataset.userId;
-                const modalBody = document.getElementById('detailsModalBody');
-                const modal = new bootstrap.Modal(document.getElementById('detailsModal'));
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.view-details-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const userId = this.dataset.userId;
+                    const modalBody = document.getElementById('detailsModalBody');
+                    const modal = new bootstrap.Modal(document.getElementById('detailsModal'));
 
-                modalBody.innerHTML = '<p class="text-center">Loading...</p>';
-                modal.show();
+                    modalBody.innerHTML = '<p class="text-center">Loading...</p>';
+                    modal.show();
 
-                fetch(`/admin/order/details/${userId}`)
-                    .then(response => response.text())
-                    .then(html => {
-                        modalBody.innerHTML = html;
-                    })
-                    .catch(error => {
-                        modalBody.innerHTML = '<p class="text-danger text-center">Error loading details.</p>';
-                        console.error(error);
-                    });
+                    fetch(`/admin/order/details/${userId}`)
+                        .then(response => response.text())
+                        .then(html => {
+                            modalBody.innerHTML = html;
+                        })
+                        .catch(error => {
+                            modalBody.innerHTML = '<p class="text-danger text-center">Error loading details.</p>';
+                            console.error(error);
+                        });
+                });
             });
         });
-    });
     </script>
-<!-- sidebar close script -->
+    <!-- sidebar close script -->
     <script>
-    // When any modal is opened
-    $(document).on('show.bs.modal', function () {
-        $('.g-sidenav-show .sidenav').hide(); // hide sidebar
+        // When any modal is opened
+        $(document).on('show.bs.modal', function() {
+            $('.g-sidenav-show .sidenav').hide(); // hide sidebar
+        });
+
+        // When modal is closed
+        $(document).on('hidden.bs.modal', function() {
+            if ($('.modal.show').length === 0) {
+                $('.g-sidenav-show .sidenav').show();
+            }
+        });
+    </script>
+
+
+
+
+<!-- change status  -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    // ✅ 1. Store selected order ID
+    let selectedOrderId = null;
+
+    // ✅ 2. Open "Change Status" modal
+    document.querySelectorAll('.change-status-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            selectedOrderId = this.dataset.orderId; // Get order ID from button
+            const userName = this.dataset.userName;
+
+            // Update modal info
+            document.getElementById('orderInfo').textContent =
+                `Change status for user: ${userName} (Order ID: ${selectedOrderId})`;
+
+            // Show modal
+            const modal = bootstrap.Modal.getOrCreateInstance(
+                document.getElementById('changeStatusModal')
+            );
+            modal.show();
+        });
     });
 
-    // When modal is closed
-    $(document).on('hidden.bs.modal', function () {
-      if ($('.modal.show').length === 0) {
-        $('.g-sidenav-show .sidenav').show();
-    }
+    // ✅ 3. Button click handlers inside modal
+    document.getElementById('confirmOrderBtn').addEventListener('click', function() {
+        sendStatusUpdate('confirmed');
     });
+
+    document.getElementById('dispatchOrderBtn').addEventListener('click', function() {
+        sendStatusUpdate('shipped');
+    });
+
+    document.getElementById('cancelOrderBtn').addEventListener('click', function() {
+        sendStatusUpdate('cancelled');
+    });
+
+    // ✅ 4. Function to send AJAX request
+    function sendStatusUpdate(status) {
+        if (!selectedOrderId) {
+            alert("No order selected!");
+            return;
+        }
+
+        // Debug: see what is being sent
+        console.log("Sending status update:", selectedOrderId, status);
+
+        fetch(`/admin/order/${selectedOrderId}/update-status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ status: status })
+        })
+        .then(res => {
+            if (!res.ok) {
+                return res.json().then(err => { throw err; });
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert(data.success);
+                location.reload(); // refresh page to show new status
+            } else if (data.error) {
+                alert(data.error);
+            }
+        })
+        .catch(err => {
+            console.error("Error:", err);
+            alert(err.message || "Something went wrong!");
+        });
+
+        // Hide modal after click
+        const modalInstance = bootstrap.Modal.getInstance(
+            document.getElementById('changeStatusModal')
+        );
+        if (modalInstance) modalInstance.hide();
+    }
+});
 </script>
 
+
+
+
+
+
+
+
+
+
+
+
 </body>
+
 </html>

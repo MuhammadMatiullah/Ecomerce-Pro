@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8"/>
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="{{asset('assets/admin1/assets/img/apple-icon.png')}}">
     <link rel="icon" type="image/png" href="{{asset('assets/admin1/assets/img/favicon.png')}}">
@@ -10,6 +10,12 @@
         Category
     </title>
     @include('admin.css')
+    <style>
+        .modal-body {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
 </head>
 
 <body class="g-sidenav-show  bg-gray-100">
@@ -65,8 +71,39 @@
                                                 <h6 class="mb-0 text-sm">{{ $category->name }}</h6>
                                             </td>
                                             <td>
-                                                <p class="text-xs text-secondary mb-0">{{ $category->description }}</p>
+                                                <h6 class="mb-0 text-sm">{{ $category->description }}</h6>
                                             </td>
+                                            <!-- <td>
+                                                @php
+                                                $shortDesc = Str::limit($category->description, 50); // show only first 50 chars
+                                                @endphp
+
+                                                <p class="text-xs text-secondary mb-0">
+                                                    {{ $shortDesc }}
+                                                    @if(strlen($category->description) > 50)
+                                                    <a href="#" data-bs-toggle="modal" data-bs-target="#descModal{{ $category->id }}" class="text-primary ms-1">View More</a>
+                                                    @endif
+                                                </p>
+
+                                                Modal
+                                                <div class="modal fade" id="descModal{{ $category->id }}" tabindex="-1" aria-labelledby="descModalLabel{{ $category->id }}" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="descModalLabel{{ $category->id }}">Category Description</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <p class="text-secondary">{{ $category->description }}</p>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td> -->
+
                                             <td>
                                                 <span class="badge bg-gradient-secondary">{{ $category->slug }}</span>
                                             </td>

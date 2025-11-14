@@ -134,6 +134,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin']) ->group(funct
     //order table
     Route::get('/order', [AdminOrderController::class, 'index'])->name('order.index');
     Route::get('/order/details/{userId}', [AdminOrderController::class, 'userDetails'])->name('order.details');
+Route::post('/order/{id}/update-status', [AdminOrderController::class, 'updateStatus'])->name('order.updateStatus');
 
   });
 
